@@ -1,0 +1,39 @@
+_iup_lib := ndlLoad './libniup.so';
+
+
+__iup_open          := _iup_lib ndlGetSym 'iniup_open';
+__iup_close         := _iup_lib ndlGetSym 'iniup_close';
+__iup_message       := _iup_lib ndlGetSym 'iniup_message';
+__iup_mainloop      := _iup_lib ndlGetSym 'iniup_mainloop';
+__iup_label         := _iup_lib ndlGetSym 'iniup_label';
+__iup_dialog        := _iup_lib ndlGetSym 'iniup_dialog';
+__iup_append        := _iup_lib ndlGetSym 'iniup_append';
+__iup_set_attribute := _iup_lib ndlGetSym 'iniup_set_attribute';
+__iup_showxy        := _iup_lib ndlGetSym 'iniup_showxy';
+
+_iup_open          is (__iup_open ndlCall); 
+_iup_close         is (__iup_close ndlCall);
+_iup_message       is (__iup_message ndlCall);
+_iup_mainloop      is (__iup_mainloop ndlCall);
+_iup_label         is (__iup_label ndlCall);
+_iup_dialog        is (__iup_dialog ndlCall);
+_iup_append        is (__iup_append ndlCall);
+_iup_set_attribute is (__iup_set_attribute ndlCall);
+_iup_showxy        is (__iup_showxy ndlCall);
+
+
+ 
+niup_test1 is op a {
+  _iup_open 0;
+  lbl := _iup_label 'Hello World from IUP.';
+  dlg vbox := _iup_dialog 1;
+  write 'Dialog and vbox' dlg vbox;
+  _iup_append vbox lbl; 
+  _iup_set_attribute dlg 'TITLE' 'Hello World 2';
+  _iup_showxy dlg 1 1;
+  _iup_mainloop 0;
+  _iup_close 0;
+  l}
+
+
+niup_test1 0;

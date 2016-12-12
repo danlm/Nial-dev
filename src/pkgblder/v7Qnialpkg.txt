@@ -1,0 +1,31 @@
+V7STANDARD
+
+# Standard Features 
+CORE coredefs.ndf
+SYSTEM -
+V6AT -
+COMMAND -
+TIMEHOOK -
+DIRECTIO -
+REGEXP posix_regexp.ndf
+PROFILE -
+USEROPS -
+
+# Unix features
+#PROCESS_CONTROL -
+SOCKETS sockets.ndf
+
+# dynamic loading
+NDYNLOAD -
+
+# User hash tables
+UHTABLE ntables.ndf
+
+# Simple process management
+SPROCESS -
+
+# Memory spaces
+MEMSPACES -
+
+# Catch and throw primitives
+CATCHTHROW -

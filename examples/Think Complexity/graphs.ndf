@@ -1,0 +1,239 @@
+# ============= Graphs ======================
+#
+# Graphs are implemented as a table of tables
+# This approach does not support multigraphs
+# at the moment.
+#
+# ============================================
+
+
+add_vertex is operation g v {
+	g _tset [v, _tcreate 1];
+	v
+}
+
+
+new_graph is operation vertices {
+	g := _tcreate tally vertices;
+	g eachright add_vertex vertices;
+	g}
+
+
+get_edge_set is operation g v {
+	g _tget v}
+
+
+addu_edge is operation g e {
+	% Add an undirected edge;
+	% Allow edge to have weight or other characteristics;
+	v w := 0 1 choose e;
+	(g _tget v) _tset w e;
+	(g _tget w) _tset v e;
+	e}
+
+
+add_edge is operation g e {
+	% Add a directed edge;
+	% Allow edge to have weight or other characteristics;
+	v w := 0 1 choose e;
+	(g _tget v) _tset w e;
+	e}
+
+
+get_edge is operation g v w {
+	% Get the edge between v and w;
+	edges := g get_edge_set (v []);
+	if edges = [] then
+		[]
+	else
+		edges _tget (w [])
+	endif}
+
+
+
+del_edge is operation g v w {
+	% Delete the edge between v and w;
+	edges := g get_edge_set (v []);
+	if edges = [] then
+		[]
+	else
+		edges _tdel w;
+		[]
+	endif;
+}
+
+
+delu_edge is operation g v w {
+	% Delete the undirected edge between v and w;
+	del_edge g v w;
+	del_edge g w v;
+	[]}
+
+
+get_vertices is operation g {
+	% Return a list of vertices in the graph;
+	_getkeys g}
+
+
+get_all_edges is operation g {
+	% Return all edges of the graph;
+	vertices := get_vertices g;
+	if vertices = [] then
+		[]
+	else
+		edges := [];
+		for v with vertices do
+			es := g get_edge_set v;
+			esv := _getkeys es;
+			for w with esv do
+				edges := (es _tget w) hitch edges;
+			endfor;
+		endfor;
+		cull edges
+	endif}
+
+
+get_connected_vertices is operation g v {
+	% Produce a list of vertices connected to v;
+	edges := g get_edge_set v;
+	if edges = [] then
+		[]
+	else
+		_getkeys edges
+	endif}
+
+
+get_output_edges is operation g v {
+	% Return a list of all edges coming out of a vertex;
+	edges := g get_edge_set v;
+	if edges = [] then
+		[]
+	else
+		esv := _getkeys edges;
+		edges eachright _tget esv
+	endif}
+
+
+
+# ------------------- Basic Graphs ----------------------
+
+
+directed_graph is operation vertices edges {
+	% Create a new directed graph;
+	g := new_graph vertices;
+	g eachright add_edge edges;
+	g}
+
+
+undirected_graph is operation vertices edges {
+	% Create a new undirected graph;
+	g := new_graph vertices;
+	g eachright addu_edge edges;
+	g}
+
+simple_graph is undirected_graph;
+
+
+random_graph is operation n p {
+	% Create an Erdos-Renyi graph G(n,p);
+	% n is the number of vertices;
+	% p is the probability of an edge between two vertices;
+	vertices := each phrase ('v' eachright link (each string count n));
+	g := new_graph vertices;
+	for v with vertices do
+		for w with vertices do
+	    	q := first random 1;
+	    	if q < p then
+	    		g add_edge [v, w, q]
+	    	endif;
+		endfor;
+	endfor;
+	g}
+
+
+# ------------------ Utilities ------------------------
+
+
+show_graph is operation g {
+	keys := _getkeys g;
+	for k with keys do
+		write '    ';
+		write ('Vertex: ' link (string k));
+		edges := g get_edge_set k;
+		for w with (_getkeys edges) do
+			write ('   ' link display (edges _tget w));
+		endfor;
+	endfor;
+	[]}
+
+
+is_connected_graph is operation g {
+	% Determine if a graph is connected;
+	% I.e. starting at any vertex I can reach all other vertices;
+	vertices := get_vertices g;
+	if vertices = [] then
+		o
+	else
+		visited := _tcreate tally vertices;
+		v := first vertices;
+		seen := [v];
+		next := g get_connected_vertices v;
+		visited _tset v l;
+		while next ~= [] do
+			v := first next;
+			%write 'checking' v;
+			if not (visited _tget (v o)) then
+				visited _tset (v l);
+				next := next link (g get_connected_vertices v);
+				seen := v hitch seen;
+			endif;
+			next := rest next;
+		endwhile;
+		% Connected if we have seen all vertices;
+		(tally seen) = (tally vertices)
+	endif}
+
+
+# ------------------- Algorithms ---------------------------
+
+
+# Find shortest paths in a graph g from vertex v to connected 
+# node using Dijkstra's algorithm. This not the
+# min co version with weighted paths
+
+shortest_gpath is operation g v {
+	vertices := get_vertices g;
+	max_path := 2 + tally vertices;
+	% Initialise table of seen vertices;
+	path_lengths := _tcreate tally vertices;
+	for i with vertices do path_lengths _tset (i max_path) endfor;
+	path_lengths _tset (v 0);
+	% Initialise queue;
+	queue := [v];
+	repeat
+		next := first queue;
+		distance := 1 + (path_lengths _tget next);
+		s := g get_edge_set next;
+		vs := _getkeys s;
+		for k with vs do
+			if (path_lengths _tget k) = max_path then
+				path_lengths _tset (k distance);
+				queue := queue link k;
+			endif;
+		endfor;
+		queue := rest queue;
+	until 
+		queue = []
+	endrepeat;
+	% Collect distances from path_lengths table;
+	pv := _getkeys path_lengths;
+	path_lengths eachright (op p k ([k, p _tget k])) pv}
+
+
+# ----------------------- Testing --------------------------
+
+
+
+g := simple_graph ("a "b "c "d) ["a "b 123, "b "c 222, "b "d 55, "c "d 23, "b "b 0];
+
+

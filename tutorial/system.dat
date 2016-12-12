@@ -1,0 +1,42 @@
+System operations (keyboard input, screen output, host, edit)
+
+The operation "readscreen" displays the string argument as a prompt
+and stops, awaiting an entry. It accepts all text typed until the
+<RETURN> as the input and assigns it to "Name" as a string.
+
+.n Name gets readscreen 'Please type your name: ';
+
+The operation "read" displays the string argument as a prompt
+and stops, awaiting an entry. The text entered is executed, which
+causes a string representing numbers to be converted to numbers
+or a string representing a Q'Nial expression to be evaluated.
+
+.n X Y gets read 'X Y coordinates (Use 20 20): ' ;
+.p
+The operation "writescreen" writes a string to the screen. The operation
+"write" formats the output to a proper character table for output.
+
+.n writescreen 'Correct answer';
+.n write "Coordinates: X Y ;
+
+Other screen oriented operations and expressions
+
+writechars    writes characters without newline
+readchar      accepts a single character and does not display it
+
+.p
+The host editor is used directly with operation "edit".
+
+    edit <file name>
+
+.p
+Host commands can be executed from within Q'Nial.
+
+host 'dir'
+
+host 'dir > temp' ; dir gets getfile "temp; 3 take dir
+
+At the top level loop, the exclamation mark ! can be used instead of "host"
+
+.p
+

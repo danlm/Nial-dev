@@ -1,0 +1,100 @@
+#
+# Common maths support for Neural Networks
+# ----------------------------------------
+# This supplies two transfer functions, the Sigmoid/Logistic
+# function and the Hyperbolic tangent function.
+#
+# The gradient descent approach uses the derivatives of the 
+# activations but in the case of sigmoid and tanh there is a faster
+# computation using the outputs. To allow this we pass both activations
+# and outputs to the derivative function for the optimisation.
+
+write 'nn_maths loaded';
+
+
+# =============== Sigmoid/Logistic Support ========================
+
+
+# Sigmoid/Logistic Function
+# -------------------------
+# The argument is a simple scalar value
+
+sigmoid_fn is operation x {
+    1.0 / (1.0 + exp(0.0 - x))}
+
+
+# Sigmoid derivative
+# ------------------
+# Optimisation uses the outputs
+
+sigmoid_df is operation activations outputs {
+	(outputs*(1.0 - outputs))} 
+
+
+
+# ================ Hyperbolic Tangent Support =====================
+
+# Hyperbolic tangent
+# ------------------
+# Implementation splits into two cases to avoid
+# problems with overflow
+
+tanh_fn is operation A {
+	if A > 0.0 then
+		ta := exp (0.0 - (2*A));
+		((1.0 - ta)/(1.0 + ta))
+ 	else
+ 		ta := exp (2*A);
+		((ta - 1.0)/(ta + 1.0))
+	endif}
+
+
+# Derivative of hyperbolic tangent
+# --------------------------------
+# Optimise using outputs rather than  activations
+
+tanh_df is operation activations outputs { 
+	1.0 - outputs*outputs}
+
+
+
+# ==================== Generic Derivative =============================
+# 
+# Derivative of general function as a centered difference approximation 
+# with a fourth order error. This allows us to work with arbitrary
+# transfer functions.
+#
+# f'(x) = (-f(x+2h) + 8f(x+h) -8f(x-h) + f(x-2h))/12h + o(h**4)
+
+derivative4 is transformer fn operation h x {
+	offsets := 2 1 -1 -2;
+	coeffs  := -1 8 -8 1;
+	(sum (coeffs * each fn (x + (h * offsets))))/(12*h)}
+
+
+# The basic delta for computation of derivatives
+
+trans_df_h := 1.0e-8;
+
+
+# Generic derivatives of activations
+
+nn_trans_df is transformer fn operation activations outputs {
+	trans_df_h eachright derivative4 fn activations}	
+
+
+
+# ================== Random Vectors ==========================
+
+# Create a random vector of 'num_vals' entries in a nominated range
+# (rng = [vmin..vmax]) 
+#
+
+nn_rand_vector  is operation rng num_vals {
+	% Create a random vector of num_vals values each in the
+	  interval [vmin..vmax) ;
+	vmin vmax := rng;
+	res := vmin + ((vmax-vmin)*(random num_vals));
+	res}
+
+

@@ -1,0 +1,65 @@
+# ----------------------- Testing ----------------------
+# This is the classic XOR data set training test
+
+loaddefs "nn_gd_training;
+
+write 'nn_gd_test loaded';
+
+
+# Data set for XOR training
+
+xor_training_data := [
+	[[1,1],[0]],
+	[[1,0],[1]],
+	[[0,1],[1]],
+	[[0,0],[0]]];
+
+xor_test_data := each first xor_training_data;
+
+
+# Create XOR network
+# ------------------
+# Train for a linear sigmoid network model
+
+xor_net := nn_linear_sigmoid_net 2 [2,1];
+
+
+# Training parameters
+# -------------------
+# Parameters for training the network in terms of the gradient descent
+# steps and momentum
+
+alpha := -0.3;
+epsilon := -0.7;
+training_params := [epsilon, alpha];
+
+
+# Training Control
+# -----------------
+# Control of the training in terms of the maximum number of iterations
+# and the desired mean squared error
+
+n_iter := 20000;
+req_mse := 0.01;
+training_control := [n_iter, req_mse];
+
+
+# test_online_gd
+# --------------
+# Run a test of the gradient descent alorithm. At the end we print out
+# the duration of the training, the number of iterations performed
+# and the final mean square error
+
+test_online_gd is operation t_params t_control {
+	t_start := time;
+	netw history := gd_online_sigmoid_train_net xor_net xor_training_data t_params t_control;
+	t_end := time;
+    write 'Training Finished' (t_end-t_start) (tally history) (first history);
+	nn_test_net sigmoid_fn netw xor_training_data;
+	"ok}
+
+
+# Run the test
+
+test_online_gd training_params training_control;
+

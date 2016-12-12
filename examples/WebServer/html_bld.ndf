@@ -1,0 +1,110 @@
+#
+# Build html from a nested array 
+#
+
+# Test form using an identity function
+# which just returns the list of arguments
+# This approach also allows for other functions to
+# return html structures
+
+xd is op x { x }
+
+test2 := xd "html []
+            (xd "head []
+              (xd "title [] 'Simple test page')
+              )
+            (xd "body []
+              (xd "h1 ["font "cmr10, "size 12] 'Section 1')
+              (xd "br [])
+              (xd "p [] 'First paragraph')
+              );
+ 
+
+#
+# table of functions to map list structures to html
+#
+
+html_tags := _tcreate 1;
+
+# Forward declaration of tag generation
+
+html_tag_gen is external operation;
+
+
+#
+# Basic function to create html
+#
+
+html_build is op stream body {
+  tag := first body;
+  opts := second body;
+  cont := if (tally body) > 2 then 2 drop body else [] endif;
+  html_tag_gen stream tag opts cont;
+  l
+}
+
+
+#
+# option generation function
+#
+
+html_opt_gen is op stream opt {
+  n v := opt;
+  if isinteger v then
+     nio_write stream (link ' ' (string n) '=' (string v));
+  else 
+     nio_write stream (link ' ' (string n) '="' (string v) '"');
+  endif;    
+  l
+}
+
+
+#
+# Generate elements inside a construct. These can be atomic objects
+# lists, strings
+#
+
+html_element_gen is op stream elt {
+  if isstring elt then
+    % string is just written;
+    nio_write stream elt;
+  elseif atomic elt then
+    % atomic is converted to string and written;
+    nio_write stream (string elt);
+  else
+    % nested element, build as tag;
+    html_build stream elt;
+  endif;
+  l
+}
+
+
+#
+# Create output for an html tag
+#
+
+html_tag_gen is op stream tag opts cont {
+  nonlocal html_tags;
+  tfn := html_tags _tget tag [];
+  if tfn = [] then 
+    % simple tag with open and close;
+    nio_write stream (link '<' (string tag));
+    stream eachright html_opt_gen opts;
+    if (tally cont) > 0 then
+      nio_write stream '>';
+      stream eachright html_element_gen cont;
+      nio_write stream (link '</' (string tag) '>');
+    else
+      nio_write stream '/>';
+    endif;
+  else
+    % special tag;
+    tfn apply stream tag opts;
+  endif;
+  l
+}
+
+
+           
+
+

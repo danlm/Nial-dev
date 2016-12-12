@@ -1,0 +1,44 @@
+loaddefs "html_bld;
+
+ws_add_route is external operation;
+
+ 
+ws_test_page := ("html []
+                  ("head []
+                    ("title [] 'Simple test page')
+                    )
+                  ("body ["style 'background-color:bisque; border-style:solid;', "border 6]
+                    ("h1 [] 'Section 1')
+                    ("hr [])
+                    ("p [] 'First paragraph of a generated page')
+                    ("div ["style 'background-color:yellow;', "border 4]
+                      ("p [] 'One for Mike')
+                      )
+                    ("div ["style 'background-color:aquamarine;', "border 4]
+                      ("p [] 'One for John')
+                      )
+                    )
+                );
+ 
+
+
+# --------------------------
+# Simple test page generator
+#
+
+ws_gen_test_page is op st {
+  write 'generating test page';
+  iow := get_nio_out_stream st;
+  ws_write_response iow 200 'OK';
+  ws_write_header iow 'Content-Type' 'text/html';
+  ws_end_header iow;
+  html_build iow ws_test_page;
+  write 'Test page count ' (nio_count iow);
+  set_stream_status st "closing;
+  'Test page generated'}
+
+
+
+ws_add_route "test1 !ws_gen_test_page;
+ws_add_route "test2 !ws_gen_test_page;
+

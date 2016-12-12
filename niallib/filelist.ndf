@@ -1,0 +1,20 @@
+#
+Operation: getfilelist Pattern
+File: filelist.ndf
+
+# A utility to return a list of files given a pattern.
+  The pattern should include any path to the source files and
+  be an appropriate pattern for 'ls'.
+
+
+library "newhost
+
+filelist IS OPERATION Pattern {  
+      newhost ( link '\ls -da ' ( string Pattern ) ) 
+} 
+
+
+#Example
+
+#
+filelist '*.*'

@@ -1,0 +1,13 @@
+V7SIMPLE
+
+# Standard Features 
+CORE coredefs.ndf
+SYSTEM -
+V6AT -
+COMMAND -
+TIMEHOOK -
+DIRECTIO -
+REGEXP posix_regexp.ndf
+PROFILE -
+USEROPS -
+

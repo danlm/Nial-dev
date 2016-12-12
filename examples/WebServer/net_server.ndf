@@ -1,0 +1,312 @@
+#
+# A simple non-blocking web server in Nial
+#
+
+library "nstreams
+
+
+# ------------------ Globals --------------------
+
+# CRLF sequence for headers
+
+crlf := [ char 13, char 10];
+
+
+# Create a generic internal stream
+
+net_dummy_stream := nio_open -1 1;
+
+
+#  Hold a list of web server streams.
+#  Each web server stream will be a Nial table and be
+#  identified by a stream id. 
+#  
+
+net_streams := [];
+net_next_stream_id := 1;
+
+
+# ---------------- Global Stream handling --------------------
+#
+# Streams are represented by tables and have a number of properties
+# that govern their behaviour. The properties fall into identification,
+# action
+#
+#    stream_type     - describes the type of this string
+#    net_stream_id   - unique id assigned to each stream
+#    stream_status   - one of opening, active, closing, closed
+#
+#    read_stream     - function to read data into the stream
+#    write_stream    - function to write data from the stream
+#    process_input   - process input after reading to stream
+#    generate_output - create output for this stream based on input
+#
+#
+
+
+# Abstract out the basic stream operations
+ 
+get_stream_type     is op st (st _tget "stream_type);
+get_stream_id       is op st (st _tget "net_stream_id);
+get_nio_in_stream   is op st (st _tget "nio_in_stream);
+get_nio_out_stream  is op st (st _tget "nio_out_stream);
+get_stream_status   is op st (st _tget "stream_status);
+
+set_stream_type     is op st typ (st _tset ("stream_type typ));
+set_stream_id       is op st id  (st _tset ("net_stream_id id));
+set_nio_in_stream   is op st ios (st _tset ("nio_in_stream ios));
+set_nio_out_stream  is op st ios (st _tset ("nio_out_stream ios));
+set_stream_status   is op st status (st _tset ("stream_status status));
+
+get_read_stream     is op st (st _tget "read_stream);
+get_write_stream    is op st (st _tget "write_stream);
+get_release_stream  is op st (st _tget ("release_stream []));
+
+set_read_stream     is op st rsf (st _tset ("read_stream rsf));
+set_write_stream    is op st wsf (st _tset ("write_stream wsf));
+set_release_stream  is op st rsf (st _tset ("release_stream rsf));
+
+
+get_process_input   is op st (st _tget "process_input);
+get_generate_output is op st (st _tget "process_output);
+ 
+set_process_input   is op st pif (st _tset ("process_input pif));
+set_generate_output is op st gof (st _tset ("process_output gof));
+ 
+net_same_stream    is op s1 s2 ((get_stream_id s1) = (get_stream_id s2));
+
+is_reading         is op st (st _tget ("reading l));
+is_processing      is op st (st _tget ("processing o));
+is_writing         is op st (st _tget ("writing l));
+is_generating      is op st (st _tget ("generating l));
+
+set_reading        is op st b (st _tset ("reading b));
+set_processing     is op st b (st _tset ("processing b));
+set_writing        is op st b (st _tset ("writing b));
+set_generating     is op st b (st _tset ("generating b));
+
+get_net_context    is op st (st _tget "net_context);
+set_net_context    is op st ctxt (st _tset ("net_context ctxt));
+
+
+# --------------------- Add/Remove Streams -------------------------
+
+# Add another stream to our list
+
+net_add_stream is op st {
+  nonlocal net_streams;
+  write 'net_add_stream' (get_stream_type st) (get_stream_id st);
+  net_streams := st hitch net_streams;
+  st
+}
+
+
+# Release a stream according to its particular logic
+
+net_release_stream is operation st {
+  relst := get_release_stream st;
+  if relst ~= [] then  
+    apply relst st;
+  endif;
+  l}
+
+
+#
+# Remove a stream from the polling streams
+#
+
+net_close_stream is op st {
+  nonlocal net_streams;
+  write '*** Closing stream ' (get_stream_id st) (get_stream_type st);
+  net_release_stream st;
+  nio_close (get_nio_out_stream st);
+  nio_close (get_nio_in_stream st);
+  set_stream_status st "closed;
+  st}
+
+#
+# Handle input on a readable stream
+#
+
+net_process_input is op st {
+  if is_reading st then apply (get_read_stream st) st; endif;
+  if is_processing st then apply (get_process_input st) st; endif;
+  if is_generating st then apply (get_generate_output st) st; endif;
+  l
+}
+
+
+#
+# Generate output on a network stream.
+# This does not write, merely generate
+#
+
+net_generate_output is op st {
+  if is_generating st then apply (get_generate_output st) st; endif;
+  l
+}
+
+
+#
+# Handle output on a supplied stream
+#
+
+net_process_output is op st {
+  if is_writing st then apply (get_write_stream st) st; endif;
+  l}
+
+
+# ---------------- Standard Behaviours -----------------------
+
+#
+# The standard reader collects input from a readable stream
+# and buffers it for later processing
+#
+
+net_standard_read is op st {
+  if is_reading st then nio_read_stream (get_nio_in_stream st) 4096 IOS_NO_WAIT; endif;
+  l}
+
+
+#
+# The standard writer transfers output to a writeable stream
+#
+ 
+net_standard_write is op st {
+  if is_writing st then
+    s := get_nio_out_stream st;
+    c := nio_count s; 
+    if c > 0 then
+     % Write as much as we can;
+      nio_write_stream s IOS_NO_WAIT;
+    endif;
+  endif;
+  l}
+
+
+#
+# Standard processing handles input that has been buffered on a
+# stream in an appropriate way. At the moment this is a dummy.
+#
+
+net_standard_process is op st (l);
+
+
+# Returns true if a stream has output to write
+#
+
+net_has_output is op st (0 < (nio_count get_nio_out_stream st));
+
+
+# Dummy routine to generate output
+#
+
+net_standard_generate is op st (l);
+
+
+# ------------------------- Stream management ---------------------------
+
+# Create a stream
+#
+#  ctxt is a stream specific context entry
+#
+
+net_create_new_stream is op ctxt {
+  nonlocal net_next_stream_id;
+ % Create an associative array for the stream;
+  st := _tcreate 1;
+  set_stream_type st 'standard stream';
+  set_stream_status st "opening;
+ % Add a unique id;
+  set_stream_id st net_next_stream_id;
+  net_next_stream_id := net_next_stream_id + 1;
+ % Set the supplied context;
+  set_net_context st ctxt;
+ % Add some dummy streams;
+  set_nio_in_stream st net_dummy_stream;
+  set_nio_out_stream st net_dummy_stream;
+ % Set reader and writer functions;
+  set_read_stream st !net_standard_read;
+  set_write_stream st !net_standard_write;
+ % Set processing functions;
+  set_process_input st !net_standard_process;
+  set_generate_output st !net_standard_generate;
+ % return the new stream;
+  st}
+
+
+#
+# Manage the status of a stream to decide if we should
+# close the stream. This will return false if the stream
+# is closing and has no more data to send
+#
+
+net_active_stream is op st {
+  ios_out := get_nio_out_stream st;
+  count := nio_count ios_out;
+  st_status := get_stream_status st;
+  if ("closing = st_status) and (0 = count) then o else l endif}
+  
+
+# -----------------------------------------------------
+# Poll for read/write on streams and handle associated data.
+#
+# At the end of each loop the server will wait for 
+# 'wait_time' nano seconds. The form of this is 
+# a list [seconds, nanoseconds].
+#
+
+net_poll is op wait_time {
+  nonlocal net_streams;
+  while 0 < tally net_streams do
+   % ----------- Input handling ------------ ;
+   % Check for any streams that are readable ;
+   % We use a poll period of 1 second if we  ;
+   % have no active conections, otherwise 0  ;
+   % This period is specified in microseconds;
+   % --------------------------------------- ;
+   pflags := 1000000;
+   if 1 < tally net_streams then
+     pflags := 0;
+   endif;
+   % Poll for active input streams;
+    rp wp ep := nio_poll pflags (each get_nio_in_stream net_streams) [] [];
+   % Select the readable streams and handle;
+    each net_process_input (rp sublist net_streams);
+   % ------------ Output Handling ---------- ;
+   % Look for streams that have data to send ;
+   % and then check if they are able to send ;
+   % --------------------------------------- ;
+    has_output := each net_has_output net_streams;
+    to_write := has_output sublist net_streams;
+    if 0 < tally to_write then
+      wst := each get_nio_out_stream to_write;
+      rp wp ep := nio_poll IOS_NO_WAIT [] wst [];
+      ws := wp sublist to_write;
+      each net_process_output (wp sublist ws);
+    endif;
+   % ----------- Manage Streams ------------ ;
+   % Look for streams that are closing and   ;
+   % have no data to send.                   ;
+   % --------------------------------------- ;
+    to_remove := not (each net_active_stream net_streams);
+    each net_close_stream (to_remove sublist net_streams);
+    net_streams := (not to_remove) sublist net_streams;
+   % ----------- Sleep for a bit ----------- ;
+   % Use the supplied argument to specify    ;
+   % duration.                               ;
+   % --------------------------------------- ;                
+    nano_sleep wait_time;
+   % ---------- Check for stop ------------- ;
+   % We use the existence of a file          ;
+   % 'ws_stop.txt' to determine this         ;
+   % --------------------------------------- ;
+    if -1 < filelength 'ws_stop.txt' then 
+      write '*** Net Poll terminating';
+      each net_close_stream net_streams;
+      bye;
+    endif;
+  endwhile;
+  write 'net_poll terminating';
+  l}
+

@@ -1,0 +1,143 @@
+loaddefs "net_server;
+loaddefs "http_utils;
+loaddefs "html_bld;
+loaddefs "ws_router;
+
+
+
+# ======================= HTTP Streams ================================
+
+
+ws_set_header_lines is op ct lines (ct _tset ("header_lines lines));
+ws_get_header_lines is op ct (ct _tget "header_lines);
+
+# ---------------------
+# Reader function
+#
+
+ws_http_reader is op st {
+  ios := get_nio_in_stream st;
+  iow := get_nio_out_stream st;
+  ctxt := get_net_context st;
+  hdrl := ws_get_header_lines ctxt;
+  count := nio_read_stream ios 1024 IOS_NO_WAIT;
+  if count = 0 then 
+    if NIO_EOF = (nio_status st) then
+      write 'ws_http_reader' 'Closing stream' (get_stream_id st);
+      net_close_stream st;
+    endif;
+  else
+    write 'ws_http_reader' 'Read bytes from input:' (get_stream_id st) count; 
+    incomplete := l;
+    while incomplete do
+      ln := nio_readln ios;
+      if 0 < tally ln then 
+         if (tally ln) = 2 then
+          % Empty line;
+           incomplete := o;
+           hdrl := reverse hdrl;
+           ws_set_header_lines ctxt hdrl;
+           ws_process_headers ctxt hdrl;
+           set_stream_status st "active;
+           ws_route_request st;
+         else
+          % Normal header, strip crlf at end;
+           hdrl := (-2 drop ln) hitch hdrl;
+         endif;
+      else
+        incomplete := o;
+      endif;
+    endwhile;
+  endif;
+  if incomplete then
+    ws_set_header_lines ctxt hdrl;
+  endif;
+  l
+}
+
+
+# --------------------------------------------
+# Create an http context for handling a stream
+#
+
+ws_new_http_stream is op fd {
+  % Create a nial table to hold the state;
+  ctxt := _tcreate 1;
+  ws_set_header_lines ctxt [];
+  t := net_create_new_stream ctxt;
+  set_read_stream t !ws_http_reader;
+  set_stream_type t 'http stream';
+  set_nio_in_stream t (nio_open fd 1);
+  set_nio_out_stream t (nio_open fd 1);
+  write 'Created new http stream' (get_stream_id t) fd;
+  t
+}
+
+
+# ----------------- Listener Streams -----------------
+#
+# Listener streams handle http connection requests. They
+# create new http streams.
+#
+
+# Reading on a listener stream. A listener stream is readable
+# when a connection request arrives.
+
+ws_read_listener is op s {
+  st := get_nio_in_stream s;
+  fd := nio_get_fd st;
+  hp := socket_accept fd;
+  write 'ws_read_listener incoming fd' hp;
+  hs := ws_new_http_stream hp;
+  net_add_stream hs;
+  l
+}
+
+
+#
+# Create a listener stream to handle connections
+#
+
+ws_new_listener_stream is op fd {
+  ctxt := _tcreate 1;
+  ls := net_create_new_stream ctxt;
+  set_stream_type ls 'listener stream';
+  set_stream_status ls "active;
+  set_nio_in_stream ls (nio_open fd NIO_EXTERNAL);
+  set_read_stream ls !ws_read_listener;
+  net_add_stream ls;
+  l
+}
+
+
+# ------------------ Web Server -----------------------
+
+
+ws_create_server is op host port {
+  write 'Serving on' host port;
+  res := socket_bind host port;
+  if (isfault res) then
+    write 'ws_create_server: unable to bind host/port' res;
+    bye;
+  else
+    fd ap := res; 
+    socket_listen fd 5;
+    ws_new_listener_stream fd;
+  endif;
+  l
+}
+
+
+ws_start_server is op host port flags {
+  write '*** Starting server';
+  ws_create_server host port;
+  net_poll flags;
+}
+
+
+
+
+
+ 
+  
+  

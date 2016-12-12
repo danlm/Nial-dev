@@ -1,0 +1,7 @@
+x := 2*pi*(tell 1000)/1000.0
+
+npl_init 0
+npl_env [0.0, 2*pi, -1.0, 1.0] [0, 0]
+npl_lab ['x', 'y', 'Simple plot demo']
+npl_line [x, (sin x)]
+npl_end 0

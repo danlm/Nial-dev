@@ -1,0 +1,31 @@
+#
+Operation: newhost Command
+File: newhost.ndf
+
+# This is an alternative for the operation host.
+# The difference is that the
+# results of the command are returned as an array of
+# strings.  It uses pipes and is efficient.
+
+# The result is a list of the lines produced by the command.
+  If you wish them to be display use:
+       ITERATE write newhost Cmd
+
+
+newhost IS OPERATION Comm { 
+       Svt := settrigger o;
+       Fh := open Comm 'pr' ; 
+       IF not isfault Fh THEN 
+          Res := Null ; 
+          WHILE not isfault ( Line := readfile Fh ) DO 
+             Res := Res append Line ; 
+          ENDWHILE ; 
+          close Fh ; 
+          settrigger Svt ; 
+          Res
+       ELSE 
+          settrigger Svt ; 
+          fault ( link '?Failed to open pipe to: ' Comm ) 
+       ENDIF 
+    } 
+
