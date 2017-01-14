@@ -1442,31 +1442,6 @@ deparse(nialptr br)
           deparse(get_trbody(br));
         break;
 
-#ifdef TR_EXPRESSIONS
-
-   /* for each of the following juxtaposition forms:
-      deparse the left expression and then the right one */
-
-   case t_at_tr: deparse(get_argexpr(br));
-               deparse(get_tr(br));
-               break;
-
-   case t_ta_tr: deparse(get_tr(br));
-               deparse(get_argexpr(br));
-               break;
-
-   case t_ft_tr: deparse(get_argop(br));
-               deparse(get_tr(br));
-               break;
-
-   case t_trcompose:
-               deparse(get_tr(br));
-               deparse(get_tr2(br));
-               break;
-
-#endif /*TRANSFORMERS*/
-
-
     case t_commentexpr:
         /* add the comment to the stream */
         addtkn(createint(commentprop));

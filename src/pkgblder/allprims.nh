@@ -339,4 +339,19 @@ N_PLPLOT U _pl_ptex inpl_ptex
 N_PLPLOT U _pl_hist inpl_hist
 N_PLPLOT U _pl_adv inpl_adv
 N_PLPLOT U _pl_gpage inpl_gpage
+NFILES   U mkdir imkdir
+NFILES   U rmdir irmdir
+NFILES   U rename irename
+WINPROCESS U proc_open irun_child
+WINPROCESS U proc_read ichild_read
+WINPROCESS U proc_write ichild_write
+WINPROCESS U proc_close ichild_close
+WINPROCESS U proc_running ichild_running
+WINPROCESS U proc_count ichild_count
+
+
+
+
+
+
 

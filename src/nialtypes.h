@@ -47,7 +47,7 @@ typedef long nialptr;               /* index of an entry in the workspace */
 typedef int nialvalence;            /* storage for a valence value */
 #endif
 
-#ifdef WINDOWS
+#ifdef WINNIAL
 typedef long long nialword;         /* memory organised as array of nial words */
 typedef long long nialint;          /* data holding a signed integer */
 typedef unsigned long long unialint; /* data holding an unsigned nial int */

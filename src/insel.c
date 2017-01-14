@@ -85,11 +85,8 @@ static int  slice_addrs(nialptr a, nialptr addr);
            rest P reach (first P pick A)  
         ENDIF } 
 
-   In V6AT, if (list A) is not a valid address for B, then the fault ?address
-   is returned. AN empty array has no valid addresses.
-
-   In V4AT, if the address is not valid then the first item is selected. 
-   For an empty array, the prototype is always selected.
+   If (list A) is not a valid address for B, then the fault ?address
+   is returned since an empty array has no valid addresses.
 
    The internal routine pick(a,addr) implements the core semantics of operation 
    pick. It is described below. 
@@ -105,16 +102,10 @@ b_pick(void)
   nialptr     y = apop(),
               x = apop();
 
-  if (!pick(y, x)) 
-#ifdef V4AT
-  { apush(y);
-    ifirst();
-  }
-#else
+  if (!pick(y, x))
   {
     apush(makefault("?address"));
   }
-#endif
 }
 
 void
@@ -133,16 +124,10 @@ ipick(void)
   }
   else {
     splitfb(xx, &x, &y);
-    if (!pick(y, x)) 
-#ifdef V4AT
-    { apush(y);
-      ifirst();
-    }
-#else
+    if (!pick(y, x))
     {
       apush(makefault("?address"));
     }
-#endif
   }
   freeup(xx);
 }
@@ -214,7 +199,8 @@ ichoose()
 {
   nialptr     xx,
               x,
-              y;
+              y,
+              z;
 
   if (kind(top) == faulttype && top != Nullexpr &&
       top != Eoffault && top != Zenith && top != Nadir)
@@ -318,9 +304,7 @@ pick(nialptr a, nialptr addr)
   }
   else {
     freeup(addr);
-#ifndef V4AT
     freeup(a);
-#endif
   }
 
   return (validaddr);
@@ -346,11 +330,7 @@ isecond()
   if (tx >= 2)
     z = fetchasarray(x, 1);
   else
-#ifdef V4AT
-    z = fetchasarray(x, 0);
-#else
     z = makefault("?address");
-#endif
   apush(z);
   freeup(x);
 }
@@ -373,11 +353,7 @@ ithird(void)
   if (tx >= 3)
     z = fetchasarray(x, 2);
   else
-#ifdef V4AT
-    z = fetchasarray(x, 0);
-#else
     z = makefault("?address");
-#endif
   apush(z);
   freeup(x);
 }
@@ -411,10 +387,6 @@ reach(nialptr a, nialptr path)
     b = apop();
     addr = fetchasarray(path, i);
     validpath = pick(b, addr);  /* pick frees b or addr if temporary */
-#ifdef V4AT
-    if (!validpath)
-      freeup(b);
-#endif
     i++;
   }
   if (validpath)             /* swap computed value if any */
@@ -464,19 +436,6 @@ choose(nialptr a, nialptr addrs)
 
   listcase = valence(a) == 1 && v > 0 && kind(addrs) == inttype;
   cnt = tally(addrs);
-
-#ifdef V4AT
-  if (cnt==0)
-  { /* create the empty container */
-    nialptr archetype = fetchasarray(a,0);
-    z = new_create_array(atype, v, 0, shpptr(addrs, v));
-    store_array(z,0,archetype);
-    freeup(apop()); /* unprotect a and free it */
-    apush(z);
-    freeup(addrs);
-    return true;
-  }
-#endif
 
   /* compute the kind of the result. 
      Note that if addrs is a single then atype is used  */
@@ -529,7 +488,11 @@ choose(nialptr a, nialptr addrs)
         apush(z);
     }
     else
+    {  /* test for need of an implode after selection */
+       if (kind(z) == atype && homotest(z))
+          z = implode(z);
       apush(z);
+    }
   }
   else
     freeup(z);
@@ -549,17 +512,9 @@ choose(nialptr a, nialptr addrs)
 /* The routine iplace implements the Nial operation place
    place (X Addr) A
    which inserts X at address Addr in array A.
-   In V6AT, an attempt to place out of range results in fault ?address.
-   In V4AT, an attempt to place out of range results in  A being returned 
-   unchanged, except that for an empty the archetype is replaced.
-
+   An attempt to place out of range results in fault ?address.
+ 
    iplace uses the internal routine place to do its work.
-   
-   Design Note: The design of place having a structured argument of pairs
-   rather than a triple is an artifact of Nial's heritage from APL.
-   Trenchard argued that we would want to use EACHLEFT place to do multiple
-   placements, but that gives multiple copies of A with replacements 
-   rather than multiple placements in A.
  */
 
 void
@@ -593,11 +548,7 @@ iplace(void)
   if (!place(a, addr, x, &changed)) /* changed is not examined. The freeup of
                                        z below will free a if it has changed
                                        and z is temporary */
-#ifdef V4AT
-    apush(a);
-#else
     apush(makefault("?address"));
-#endif
   freeup(xaddr);             /* needed if xaddr is homogeneous */
   freeup(z);
 }
@@ -737,8 +688,7 @@ place(nialptr a, nialptr addr, nialptr x, int *changed)
    places the subarray X in A at the level determined by Path.
    It returns an array with the same structure except for X being inserted.
    The argument to iplace is split and then the first item is split.
-   In V6AT, a deeplace out of range returns the fault ?path.
-   In V4AT a deepplace out of range results in A being returned unchanged.
+   A deeplace out of range returns the fault ?path.
 
    The Nial level routine ideepplace uses the internal routine deepplace to 
    do its work.
@@ -754,11 +704,9 @@ ideepplace(void)
               path;
   int         changed = false;  /* used for a dummy parameter to deepplace */
 
-#ifndef V4AT
   if (kind(top) == faulttype && top != Nullexpr &&
       top != Eoffault && top != Zenith && top != Nadir)
     return;
-#endif
   z = apop();
   if (tally(z) != 2) {
     apush(makefault("?argument of placeall must be a pair"));
@@ -777,11 +725,7 @@ ideepplace(void)
   if (!deepplace(a, path, x, &changed)) /* changed is not examined. The
                                            freeup of z below will free a if
                                            it has changed and z is temporary */
-#ifdef V4AT
-    apush(a);
-#else
     apush(makefault("?path"));
-#endif
   freeup(xpath);             /* needed if xpath is homogeneous */
   freeup(z);
 }
@@ -902,9 +846,8 @@ pathup(nialptr target, nialptr path, nialint i, nialint cnt, nialptr val, int *c
 /* iplaceall implements the Nial operation placeall
    placeall (Vals Addrs) A
    which inserts the items of Vals at addresses Addrs in array A.
-   In V6AT, a place out of range results in thef ault ?addresses.
-   In V4AT, a place out of range results in A being returned unchanged,
-   except that for an empty, the archetype is replaced.
+   A place out of range results in thef ault ?addresses.
+ 
    iplaceall uses the internal routine placeall to do its work.
    */
 
@@ -946,11 +889,7 @@ iplaceall(void)
   if (!placeall(a, addrs, x, &changed)) 
          /* changed is not examined. The freeup of z below will 
             free a if it has changed and z is temporary */
-#ifdef V4AT
-    apush(a);
-#else
     apush(makefault("?addresses"));
-#endif
   freeup(xaddrs);            /* needed if xaddrs is homogeneous */
   freeup(z);
 }
@@ -958,7 +897,7 @@ iplaceall(void)
 /* Routine to place items of Val at addresses Addrs in A.
    Addrs and Vals must have the same shape, except singles
    are replicated. Returns false if any addresses are out of
-   range unless in V4AT in which case it returns A.
+   range.
    Frees Addrs and Vals if temporary and A if temporary and not used
    for the result.
    If the result is in a container different from A, the variable changed is set.
@@ -1195,9 +1134,6 @@ select1(nialptr exp)
         /* do the pick */
         okay = pick(a, addr);
         if (!okay) {
-#ifdef V4AT
-          freeup(a);
-#endif
           buildfault("address");
         }
         break;

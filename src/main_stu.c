@@ -35,8 +35,10 @@ Contains the code specific to a console version of Q'Nial.
 #include <setjmp.h>
 
 #ifdef UNIXSYS
-#include <readline/readline.h>
-#include <readline/history.h>
+/* Linenoise terminal initialisation */
+#include "linenoise.h"
+#define MAX_HISTORY_LEN 4096
+int linenoiseMultiLineMode = 0;
 #endif
 
 #include "qniallim.h"
@@ -145,9 +147,16 @@ main(int argc, char *memin[], char **envp)
   nomainloop = true;
   nouserinterrupts = true;
   keeplog = false;
-  messages_on = false; 
+  messages_on = false;
 
-  
+#ifdef UNIXSYS
+  /**
+   * Initialise the linenoise history aspect
+   */
+  linenoiseHistorySetMaxLen(MAX_HISTORY_LEN);
+  linenoiseSetMultiLine(linenoiseMultiLineMode);
+#endif
+
   /* This is a variable used in absmach.c during debugging of the interpreter.
      Turn it on  for debugging with the printf statements protected by the test
      if (doprintf) */

@@ -54,6 +54,9 @@
 
 #include "utils.h"           /* for ngetname */
 
+#ifdef UNIXSYS
+#include "linenoise.h"
+#endif
 
 
 static int  putlines(FILE * fptr, nialptr y);
@@ -71,7 +74,7 @@ static void put_or_append(char mode);
 
 extern void rl_gets(char *promptstr, char *inputline);
 
-#ifndef WINDOWS
+#ifndef WINNIAL
 /*extern char *sys_errlist[];*/
 extern int  errno;
 #endif
@@ -1993,14 +1996,9 @@ readinput() {
   checksignal (NC_CS_INPUT);
 }
 
-#ifdef UNIXSYS
-#include <readline/readline.h>
-#include <readline/history.h>
-#endif
 
-
-#ifdef WINDOWS
-/* Temp fix until we have readline on Windows */
+#ifdef WINNIAL
+/* Temp fix until we have linenoise on Windows */
 static char input_line_buffer[4096];
 #endif
 
@@ -2014,27 +2012,23 @@ void
 rl_gets(char *promptstr, char *inputline)
 {
 #ifdef UNIXSYS
-    /* If the buffer has already been allocated, return the memory
-     to the free pool. */
-    if (line_read)
-    {
-        free (line_read);
-        line_read = (char *)NULL;
-    }
     
     /* Get a line from the user. */
-    line_read = readline (promptstr);
+    line_read = linenoise(promptstr);
     
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
-        add_history (line_read);
+        linenoiseHistoryAdd (line_read);
     
-    if (line_read != NULL)
+    if (line_read != NULL) {
         strcpy(inputline, line_read);
+        linenoiseFree(line_read);
+        line_read = NULL;
+    }
     else
         inputline[0] = '\000';
 #endif
-#ifdef WINDOWS
+#ifdef WINNIAL
   printf(promptstr);
   line_read = gets(input_line_buffer);
   if (line_read != NULL)

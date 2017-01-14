@@ -59,7 +59,7 @@
 #define opsys		" Mac OSX"
 #endif
 
-#ifdef WINDOWS
+#ifdef WINNIAL
 #define opsys    "Windows"
 #endif
 

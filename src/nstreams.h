@@ -7,8 +7,8 @@
  */
 #define SP_BUFFSIZE  4096
 typedef struct SP_Buff {
-  struct SP_Buff   *next;
-  long       count;
+  struct  SP_Buff   *next;
+  int        count;
   int        d_start;    /* Index of first character in buffer */
   int        d_end;      /* Last+1 */
   unsigned   char buff[SP_BUFFSIZE];

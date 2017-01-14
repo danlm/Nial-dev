@@ -56,7 +56,7 @@
 #ifdef UNIXSYS
 #include <sys/times.h>
 #endif
-#ifdef WINDOWS
+#ifdef WINNIAL
 #include <sys/time.h>
 #endif
 #include <sys/param.h>

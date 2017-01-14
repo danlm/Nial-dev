@@ -251,16 +251,14 @@ isetprofile,
 iclearprofile,
 iprofiletree,
 iprofiletable,
+iregexp_c,
+iregexp_t,
+iregexp_m,
+iregexp_extract,
+iregexp_split,
+iregexp_splice,
 iGetEnv,
 iGetCommandLine,
-iht_create,
-iht_set,
-iht_get,
-iis_ht_table,
-iht_setmeta,
-iht_getmeta,
-iht_delete,
-iht_getkeys,
 };
 
 void (*binapplytab[])() = {
@@ -539,14 +537,12 @@ init_primname("SETPROFILE",'U');
 init_primname("CLEARPROFILE",'E');
 init_primname("PROFILETREE",'E');
 init_primname("PROFILETABLE",'E');
+init_primname("RE_COMPILE",'U');
+init_primname("RE_TEST",'U');
+init_primname("RE_MATCH",'U');
+init_primname("RE_EXTRACT",'U');
+init_primname("RE_SPLIT",'U');
+init_primname("RE_SPLICE",'U');
 init_primname("GETENV",'U');
 init_primname("GETCOMMANDLINE",'E');
-init_primname("_TCREATE",'U');
-init_primname("_TSET",'U');
-init_primname("_TGET",'U');
-init_primname("ISTABLE",'U');
-init_primname("TSETM",'U');
-init_primname("TGETM",'U');
-init_primname("_TDEL",'U');
-init_primname("_GETKEYS",'U');
 }

@@ -254,11 +254,11 @@ store_bool(nialptr x, nialint i, int b)
 int
 fetch_bool(nialptr x, nialint i)
 {  nialint w = fetch_int(x,i / boolsPW);
-  nialint pos = i % boolsPW;
-  nialint tmp = BoolPackBase - pos;
-  int b;
-  b = (int)((w >> tmp)&1L);
-  return b;
+    nialint pos = i % boolsPW;
+    nialint tmp = BoolPackBase - pos;
+    int b;
+    b = (int)((w >> tmp)&1L);
+    return b;
 }
 #endif /* MACRO_BOOL_BITS */
 
@@ -324,16 +324,16 @@ allocate_heap(nialint initialmemsize)
   } else
 
 #endif /* OMITTED */
-    {
+  {
 
-      memsize = initialmemsize;
-      mem = (nialword *) malloc(memsize * sizeof(nialword));
-      if (mem == NULL) {         /* malloc failed */
-	printf("unable to allocate heap of requested size");
-	/* exit using longjmp directly since the mem has not been allocated */
-	longjmp(init_buf, NC_FATAL);
-      }
+    memsize = initialmemsize;
+    mem = (nialword *) malloc(memsize * sizeof(nialword));
+    if (mem == NULL) {         /* malloc failed */
+      printf("unable to allocate heap of requested size");
+      /* exit using longjmp directly since the mem has not been allocated */
+      longjmp(init_buf, NC_FATAL);
     }
+  }
   setup_heap();
 }
 
@@ -405,56 +405,56 @@ setup_heap()
 static void
 setup_heap()
 {
-  nialint     flhsize;
-  nialptr     endblock;
-  nialptr     free;
+    nialint     flhsize;
+    nialptr     endblock;
+    nialptr     free;
     
-  /**
-   * Create the free list header as a short block which
-   * can never be allocated. The data part is removed
-   */
-  freelisthdr = 0;
-  flhsize = minsize - mindatasize;
-  flhsize = ALIGNED_WORD_COUNT(flhsize);
+    /**
+     * Create the free list header as a short block which
+     * can never be allocated. The data part is removed
+     */
+    freelisthdr = 0;
+    flhsize = minsize - mindatasize;
+    flhsize = ALIGNED_WORD_COUNT(flhsize);
     
-  /* Start of the allocated heap */
-  membase = freelisthdr + flhsize;
+    /* Start of the allocated heap */
+    membase = freelisthdr + flhsize;
     
-  /*
-   * Set up free list header block:
-   * 1. the backward link for the header block is not used
-   * 2. set as not free to prevent a merge
-   */
-  blksize(freelisthdr) = flhsize;
-  set_freetag(freelisthdr);
-  reset_endinfo(freelisthdr);
-  free = freelisthdr;
+    /*
+     * Set up free list header block:
+     * 1. the backward link for the header block is not used
+     * 2. set as not free to prevent a merge
+     */
+    blksize(freelisthdr) = flhsize;
+    set_freetag(freelisthdr);
+    reset_endinfo(freelisthdr);
+    free = freelisthdr;
     
-  /*
-   * Create a trailer block that will not be allocated or merged
-   */
-  endblock = membase;
-  free = endblock;
-  blksize(endblock) = flhsize;
-  free = endblock;
-  set_lockedtag(endblock);
-  free = endblock;
-  reset_endinfo(endblock);
-  free = endblock;
+    /*
+     * Create a trailer block that will not be allocated or merged
+     */
+    endblock = membase;
+    free = endblock;
+    blksize(endblock) = flhsize;
+    free = endblock;
+    set_lockedtag(endblock);
+    free = endblock;
+    reset_endinfo(endblock);
+    free = endblock;
     
-  /* set up the large block */
-  membase += flhsize;
-  fwdlink(freelisthdr) = membase;
-  blksize(membase) = memsize - membase;
-  set_freetag(membase);
-  fwdlink(membase) = endblock;
-  bcklink(membase) = freelisthdr;
-  set_endinfo(membase);      /* mark end as free with ptr to block front */
-  free = membase;
+    /* set up the large block */
+    membase += flhsize;
+    fwdlink(freelisthdr) = membase;
+    blksize(membase) = memsize - membase;
+    set_freetag(membase);
+    fwdlink(membase) = endblock;
+    bcklink(membase) = freelisthdr;
+    set_endinfo(membase);      /* mark end as free with ptr to block front */
+    free = membase;
     
-  /* Link in trailer block */
-  bcklink(endblock) = membase;
-  fwdlink(endblock) = TERMINATOR;
+    /* Link in trailer block */
+    bcklink(endblock) = membase;
+    fwdlink(endblock) = TERMINATOR;
 }
 
 /* routine to expand the heap if required and allowed.
@@ -972,10 +972,7 @@ freeit(nialptr x)
     nialint     i,
       tlx = tally(x);
 
-#ifdef V4AT
-    if (tlx == 0)
-      tlx = 1;
-#endif
+
     for (i = 0; i < tlx; i++) {
       it = *topx++;
 #ifdef DEBUG
@@ -1118,19 +1115,6 @@ new_create_array(int k, int v, nialint len, nialint *extents)
         }
       }
     }
-#ifdef V4AT
-    if (tly == 0) 
-      { /* make all empties have kind atype */
-	k = atype;
-	t = 1;   /* space for the archetype */
-      }
-    /* compute number of item places, phrases and faults use len  */
-    else
-      if (k == phrasetype || k == faulttype)
-	t = len;
-      else
-	t = tly;
-#else
     if (tly == 0) 
       { /* make all empties have kind atype */
 	k = atype;
@@ -1142,7 +1126,6 @@ new_create_array(int k, int v, nialint len, nialint *extents)
       t = len;
     else
       t = tly;
-#endif
 
     /* compute number of words (nialptrs or nialints) in data part */
     switch (k) {
@@ -1948,16 +1931,11 @@ void copy(nialptr z, nialint sz, nialptr x, nialint sx, nialint cnt) {
   nialint tx = tally(x),
     tz = tally(z);
 
-#ifdef V4AT
-  int kz = kind(z); if ( kx != kz ||
-			 sz < 0 || (sz + cnt > tz && tz != 0 && sz + cnt > 1) || sx < 0 || (sx +
-											    cnt > tx && tx != 0 && sx + cnt > 1)) {
-#else
     if (sz < 0 || sz + cnt > tz || sx < 0 || sx + cnt > tx) {
-#endif
-      nprintf(OF_DEBUG, "invalid copy sz=%d,sx=%d,tz=%d,tx=%d,cnt=%d\n", sz, sx,
-	      tz, tx, cnt); nabort(NC_ABORT);
-    } if (kx == phrasetype || kx == faulttype) {
+      nprintf(OF_DEBUG, "invalid copy sz=%d,sx=%d,tz=%d,tx=%d,cnt=%d\n", sz, sx, tz, tx, cnt);
+      nabort(NC_ABORT);
+    }
+    if (kx == phrasetype || kx == faulttype) {
       nprintf(OF_DEBUG, "attempt to use copy on atomtbl type \n");
       nabort(NC_ABORT);
     }
@@ -1970,12 +1948,13 @@ void copy(nialptr z, nialint sz, nialptr x, nialint sx, nialint cnt) {
       nialint nobytes = 0;
 
       /* compute the byte count and starting addresses */
-      switch (kx) { case atype:
-	  nobytes = cnt * sizeof(nialptr);
-	  startx = (pfirstitem(x)) + sx;
-	  startz = (pfirstitem(z)) + sz;
-	  break;
-      
+      switch (kx) {
+      case atype:
+		nobytes = cnt * sizeof(nialptr);
+		startx = (pfirstitem(x)) + sx;
+		startz = (pfirstitem(z)) + sz;
+		break;
+
       case inttype:
         nobytes = cnt * sizeof(nialint);
         startx = (pfirstint(x)) + sx;
@@ -2002,9 +1981,6 @@ void copy(nialptr z, nialint sz, nialptr x, nialint sx, nialint cnt) {
       }
 
       /* do the move */
-      /* printf("memcpy: sx=%ld, sz=%ld, cnt=%ld, nobytes=%ld\n", sx, sz, cnt, nobytes); */
-      /* fflush(stdout); */
-             
       memcpy(startz, startx, nobytes);
 
       if (kx == atype) { /* update reference counts for copied items */
@@ -2177,11 +2153,7 @@ fetch_array(nialptr x, nialint i)
     nabort(NC_ABORT);
     return (Nullexpr);
   }
-#ifdef V4AT
-  if (i < 0 || (i >= tally(x) && tally(x) > 0)) {
-#else
     if (i < 0 || i >= tally(x)) {
-#endif
       nprintf(OF_DEBUG, "*** out of range fetch ***\n");
       nabort(NC_ABORT);
     }
@@ -2224,11 +2196,7 @@ fetch_array(nialptr x, nialint i)
       nprintf(OF_DEBUG, " *** wrong type in store ***\n");
       nabort(NC_ABORT);
     }
-#ifdef V4AT
-    if (i < 0 || (i >= tally(x) && tally(x) > 0)) {
-#else
       if (i < 0 || i >= tally(x)) {
-#endif
 	nprintf(OF_DEBUG, "*** out of range store ***\n");
 	nabort(NC_ABORT);
       }

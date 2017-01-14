@@ -10,7 +10,7 @@
 ================================================================*/
 
 
-#ifdef WINDOWS
+#ifdef WINNIAL
 
 /* Q'Nial file that selects features */
 
@@ -347,25 +347,24 @@ get_tstamp(char *timebuf)
 double
 get_cputime()
 {
+    /* until I understand times on windows, return wall clock time */
     return ((double)clock())/CLOCKS_PER_SEC;
+ 
+    /* 
+    FILETIME a,b,c,d;
+    
+    if (GetProcessTimes(GetCurrentProcess(),&a,&b,&c,&d)){
+        return
+            ((double)(d.dwLowDateTime |
+              ((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001) +
+            ((double)(c.dwLowDateTime |
+              ((unsigned long long)c.dwHighDateTime << 32)) * 0.0000001);
+    }else{
+        return -1.0;
+    }
+    */
 }
 
-/*
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  
-  if (GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime)) {
-    double res;
-    ULARGE_INTEGER utm, ktm;
-    utm.LowPart  = UserTime.dwLowDateTime;
-    utm.HighPart = UserTime.dwHighDateTime;
-    ktm.LowPart  = KernelTime.dwLowDateTime;
-    ktm.HighPart = KernelTime.dwHighDateTime;
-    res = (double)(utm.QuadPart + ktm.QuadPart);
-    return res;
-  } else {
-    return ((double)clock())/CLOCKS_PER_SEC;
-  }
-*/
 
 void
 inittime()
@@ -564,5 +563,5 @@ void ios_get_parameter() {
   return;
 }
 
-#endif /* WINDOWS */
+#endif /* WINNIAL */
 

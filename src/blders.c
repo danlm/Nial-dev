@@ -352,7 +352,7 @@ b_constant(int state, nialptr tkn)
           
           
 #ifdef INTS32
-          /* get constant as double, check size and then conver to integer */
+          /* get constant as double, check size and then convert to integer */
         r = atof(&buffer[0]);
         if ((r <= LARGEINT) && (r >= SMALLINT))
           
@@ -430,18 +430,4 @@ combinedaction(nialptr defs, nialptr exprs)
   return res;
 }
 
-#ifdef TR_EXPRESSIONS
 
-nialptr b_at_tr(tr,argval) nialptr tr,argval;
-{ return(mkatriple(createint(t_at_tr),tr,argval));}
-
-nialptr b_ft_tr(tr,argop) nialptr tr,argop;
-{ return(mkatriple(createint(t_ft_tr),tr,argop));}
-
-nialptr b_ta_tr(tr,argval) nialptr tr,argval;
-{ return(mkatriple(createint(t_ta_tr),tr,argval));}
-
-nialptr b_trcompose(tr1,tr2) nialptr tr1,tr2;
-{ return(mkatriple(createint(t_trcompose),tr1,tr2));}
-
-#endif

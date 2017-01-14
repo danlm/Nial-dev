@@ -368,9 +368,7 @@ ipicture()
 /* routine to compute the full diagram for an array. It calls
    diagram recusively on the items and uses paste to set up the
    rectangular arrangement. 
-   In V4AT there are structured empties and the code has to handle these
-   separately.
-*/
+   */
 
 void
 idiagram()
@@ -384,18 +382,6 @@ idiagram()
     int         vx = valence(x);
 
     if (tally(x) == 0) { /* empty case */
-#ifdef V4AT
-/* For V4AT in decor mode, the empty case is shown as the solitary of its
-   prototype with a backslash in the upper left corner */
-      if (decor)
-      { apush(x);
-        ifirst();
-        isolitary();
-        idiagram();
-        store_char(top,0,'\\');
-        return;
-      }
-#endif
 
       /* create an array of blanks of the same shape and paste them together */
       apush(x);
@@ -532,16 +518,8 @@ disp(nialptr x, int displaymode)
       strcpy(ptrCbuffer, " reshape ");  /* add the word reshape */
       ptrCbuffer += 9;
       dsz += 9;
-      if (tx == 0) 
-#ifdef V4AT
-      /* In V4AT we need to display the solitary */
-      { tx = 1;
-        solitary = true;
-        pushch('[')
-        dsz++;
-      }
-#else
-      /* In V6AT use Null for shape */
+      if (tx == 0)
+      /* Use Null for shape */
       { reservechars(6);
         strcpy(ptrCbuffer, "Null ");  /* add the word Null */
         ptrCbuffer += 5;
@@ -549,7 +527,6 @@ disp(nialptr x, int displaymode)
         freeup(x);
         return dsz;
       }
-#endif
     }
     else 
     if (tx == 1 && kind(x) != chartype) {  /* display as solitary */
@@ -833,11 +810,7 @@ disp(nialptr x, int displaymode)
     case atype:
         {                    /* separate items using list notation for 
                                 nonsimple arrays */
-#ifdef V4AT
-          int uselist = (displaymode && !simple(x) && !solitary);
-#else
           int uselist = (displaymode && (tally(x)==0 || !simple(x)) && !solitary);
-#endif
           if (uselist) {
             pushch('[')
               dsz++;
@@ -1083,10 +1056,7 @@ paste(nialptr x, int vpad, int hpad, int vlines, int hlines, nialptr vjust, nial
     /* allocate container to hold pasted subarrays */
     x = new_create_array(atype, nvx, 0, shpptr(nx, nvx));
     tx = tally(x);
-    if (tx == 0) 
-#ifdef V4AT
-      tx = 1; /* to allow for prototype */
-#else
+    if (tx == 0)
     {           /* attempting to paste array with no items.
                    return an array of shape 1 0 */
       nialptr     z;
@@ -1101,7 +1071,6 @@ paste(nialptr x, int vpad, int hpad, int vlines, int hlines, nialptr vjust, nial
       freeup(apop());        /* vjust */
       return (z);
     }
-#endif
     /* loop to  recursively paste each of the subarrays of the rasied array */
     for (i = 0; i < tx; i++) {
       p1 = paste(fetch_array(nx, i), vpad, hpad, vlines, hlines,
@@ -1356,18 +1325,7 @@ ipositions()
   vx = valence(x);
   tx = tally(x);
   kx = kind(x);
-  if (tx == 0) 
-#ifdef V4AT
-  { apush(x);
-    ishape();
-    if (decor)
-      pair(One,One);
-    else
-      pair(Zero,Zero);
-    isolitary();
-    b_reshape();
-  }
-#else
+  if (tx == 0)
   { if (vx > 1) 
     { apush(x);
       ishape();
@@ -1379,7 +1337,6 @@ ipositions()
       freeup(x);
     }
   }
-#endif
   else 
   if (vx == 0) 
   { if (atomic(x))

@@ -222,9 +222,6 @@ sysinit()
    of phrases and faults */
 
   Null = new_create_array(atype, 1, 0, &zero);
-#ifdef V4AT
-  store_array(Null,0,Zero);
-#endif
   incrrefcnt(Null);
 
   grounded = createatom(faulttype, "?Grnd");

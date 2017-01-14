@@ -26,14 +26,6 @@ extern nialptr b_block(nialptr sym, nialptr cenv, int localcnt, nialptr body);
 extern nialptr b_opform(nialptr sym, nialptr cenv, int localcnt, nialptr arglist, nialptr body);
 extern nialptr b_curried(nialptr op, nialptr argexpr);
 extern nialptr b_transform(nialptr tr, nialptr argop);
-
-#ifdef TR_EXPRESSIONS
-extern nialptr b_at_tr(nialptr tr, nialptr argval);
-extern nialptr b_ft_tr(nialptr tr, nialptr argop);
-extern nialptr b_ta_tr(nialptr tr, nialptr argval);
-extern nialptr b_trcompose(nialptr tr1, nialptr tr2);
-#endif
-
 extern nialptr get_sym(nialptr x);
 extern int  tag(nialptr x);
 extern nialptr get_name(nialptr x);

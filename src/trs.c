@@ -58,31 +58,7 @@ static void eachboth(nialptr f, nialptr x, nialptr y);
 static void reduce(nialptr f);
 static void leftaccumulate(nialptr f);
 static void accumulate(nialptr f);
-#ifndef V4AT
 static void rank(nialptr f, nialint n, nialptr a);
-#endif
-
-#ifdef INTS32
-static void
-nialradixsort(unsigned integers[], unsigned new_arr[], unsigned inds[],
-              int n, int shift, int mask, int gradesw);
-#endif
-#ifdef INTS64
-static void
-nialradixsort(unialint *integers, unialint *new_arr, unialint *inds,
-              nialint n, int shift, int mask, int gradesw);
-#endif
-
-
-
-static void nialradixsortupint(void);
-static void nialradixgradeupint(void);
-
-/*
-   static void nialradixsortupreal(void);
-   static void radixgradeupreal(void);
-*/
-
 
 
  /* each routine here implements a primitive transformer.  The convention is
@@ -131,8 +107,6 @@ ieach()
 
 /* routine to implement the EACH transformer when f is a parse tree
    representation of a Nial operation.
-   In the V4AT case, the function is applied to the prototype of an 
-   empty argument.
 */
 
 static void
@@ -149,23 +123,10 @@ each(nialptr f, nialptr x)
               v = valence(x);
 
   if (tx == 0) /* arg is empty */
-#ifdef V4AT
-  { nialptr prototype;
-    z = new_create_array(atype,v,0,shpptr(x,v)); /* create container */
-    apush(x);
-    ifirst();  /* get the prototype */
-    do_apply(f);
-    prototype = apop();
-    store_array(z,0,prototype);
-    apush(z);
-    return;
-  }
-#else
   { /* arg is empty, return it as the result */
     apush(x);
     return;
   }
-#endif
 
   if (v == 0) {              /* arg is a single */
     flag = atomic(x);
@@ -252,24 +213,10 @@ int_each(void (*f) (void), nialptr x)
               v = valence(x);
 
   if (tx ==0)  /* arg is empty */
-#ifdef V4AT
-  { nialptr prototype;
-    z = new_create_array(atype,v,0,shpptr(x,v)); /* create container */
-    apush(x);
-    ifirst();  /* get the prototype */
-    (*f) ();
-    prototype = apop();
-    store_array(z,0,prototype);
-    apush(z);
-    return;
-  }
-
-#else
   { /* arg is empty, return it as the result */
     apush(x);
     return;
   }
-#endif
 
   if (v == 0) {              /* arg is a single */
     flag = atomic(x);
@@ -352,17 +299,6 @@ real_each(double (*f) (double), nialptr x)
   int         v = valence(x);
   int         usex = refcnt(x) == 0;
 
-#ifdef V4AT
-  if (tx == 0)
-  { nialptr prototype;
-    z = new_create_array(atype,v,0,shpptr(x,v));
-    prototype = createreal((*f)(realval(fetch_array(x,0))));
-    store_array(z,0,prototype);
-    apush(z);
-    freeup(x);
-    return;
-  }
-#endif
 
   if (usex)  /* x is a temporary, we can overwrite its items */
     z = x;
@@ -578,14 +514,6 @@ iouter()
 
     if (tz == 0) {           /* the result is empty */
       z = new_create_array(atype, vz, 0, pfirstint(shz));
-#ifdef V4AT
-      /* apply f to the prototypes of the arguments to form
-         the prototype of the result */
-      { pair(fetchasarray(a, 0), fetchasarray(b, 0));
-        APPLYPRIMITIVE(f);
-        store_array(z,0,apop());
-      }
-#endif
       apush(z);
       freeup(shz);
       freeup(c);    /* since z is empty, c must be a pair of empties and
@@ -815,12 +743,10 @@ ieachboth()
    This routine implements it efficiently by avoiding the "pack" implicit in
    EACHALL.
 
-   In V4AT an argument is replicated if it has valence 0, whereas in
-   V6AT it is replicated if it has tally 1. 
+   An argument is replicated if it has valence 0.
 
-   In V4AT if one of the arguments is not replicated and they are 
-   of different shape then the formula: EACHBOTH f A B = EACHBOTH f (trim A B)
-   is used. In V6AT this situation results in the fault ?conform.
+   If one of the arguments is not replicated and they are
+   of different shape then the result is the fault ?conform.
 */
 
 static void
@@ -836,11 +762,8 @@ eachboth(nialptr f, nialptr x, nialptr y)
               xi = Null,
               yi = Null;
 
-#ifdef V4AT
-  left = valence(x) == 0;
-#else
+
   left = tally(x) == 1;
-#endif
 
   if (left) {                /* set up eachright */
     if (atomic(x))
@@ -850,11 +773,7 @@ eachboth(nialptr f, nialptr x, nialptr y)
     apush(xi);               /* to hold xi during multiple uses */
   }
 
-#ifdef V4AT
-  right = valence(y) == 0;
-#else
   right = tally(y) == 1;
-#endif
 
   if (right) {               /* set up eachleft */
     if (atomic(y))
@@ -864,18 +783,6 @@ eachboth(nialptr f, nialptr x, nialptr y)
     apush(yi);               /* to hold yi during multiple uses */
   }
 
-#ifdef V4AT 
-  if (!left && !right && !equalshape(x,y))
-  { nialptr res; /* apply the non-conforming formula */
-    pair(x,y);
-    itrim();
-    res = apop();
-    splitfb(res,&x,&y);
-    eachboth(f,x,y);
-    freeup(res);
-    return;
-  }
-#else
   /* return a fault if they do not conform in shape */
   if (!left && !right && !equalshape(x, y)) {
     apush(makefault("?conform"));
@@ -883,15 +790,9 @@ eachboth(nialptr f, nialptr x, nialptr y)
     freeup(y);
     return;
   }
-#endif
 
   /* create the result container and fill it */
   t = left ? tally(y) : tally(x);
-
-#ifdef V4AT
-  if (t == 0)  /* allow for the prototype */
-    t = 1;
-#endif
 
   if (left && right) {       /* choose the one with higher valence */
     v = (valence(x) > valence(y) ? valence(x) : valence(y));
@@ -963,12 +864,7 @@ int_eachboth(void (*f) (void), nialptr x, nialptr y)
               xi = Null,
               yi = Null;
 
-#ifdef V4AT
-  left = valence(x) == 0;
-#else
   left = tally(x) == 1;
-#endif
-
   if (left) {                /* set up eachright */
     if (atomic(x))
       xi = x;
@@ -977,11 +873,7 @@ int_eachboth(void (*f) (void), nialptr x, nialptr y)
     apush(xi);               /* to hold xi during multiple uses */
   }
 
-#ifdef V4AT
-  right = valence(y) == 0;
-#else
   right = tally(y) == 1;
-#endif
 
   if (right) {               /* set up eachleft */
     if (atomic(y))
@@ -991,18 +883,6 @@ int_eachboth(void (*f) (void), nialptr x, nialptr y)
     apush(yi);               /* to hold yi during multiple uses */
   }
 
-#ifdef V4AT 
-  if (!left && !right && !equalshape(x,y))
-  { nialptr res; /* apply the non-conforming formula */
-    pair(x,y);
-    itrim();
-    res = apop();
-    splitfb(res,&x,&y);
-    int_eachboth(f,x,y);
-    freeup(res);
-    return;
-  }
-#else
   /* return a fault if they do not conform in shape */
   if (!left && !right && !equalshape(x, y)) {
     apush(makefault("?conform"));
@@ -1010,15 +890,9 @@ int_eachboth(void (*f) (void), nialptr x, nialptr y)
     freeup(y);
     return;
   }
-#endif
 
   /* create the result container and fill it */
   t = left ? tally(y) : tally(x);
-
-#ifdef V4AT
-  if (t == 0)
-    t = 1;
-#endif
 
   if (left && right) {       /* choose the one with higher valence */
     v = (valence(x) > valence(y) ? valence(x) : valence(y));
@@ -1263,18 +1137,6 @@ sort(nialptr f, nialptr x, int gradesw)
     }
 
     lteflag = (f == upcode || (f == ltecode && simple(x)));
-    if (kx == inttype && lteflag) { /* use the radix sorting technique */
-      apush(x);
-      if (gradesw)
-        nialradixgradeupint();
-      else {
-        nialradixsortupint();
-        set_sorted(top, true);  /* record that the result is sorted by "up" */
-      }
-      return;
-    }
-
-
     gteflag = f == gtecode && homotype(kx);
     speedup = lteflag || gteflag;
     if (homotype(kx) && !speedup) {
@@ -1537,290 +1399,6 @@ badcompare:
 
 
 
-/* radix sort with grade option for 32 and 64 bit integers */
-
-
-#ifdef INTS32
-static void
-nialradixsort(unsigned integers[], unsigned new_arr[], unsigned inds[],
-          int n, int shift, int mask, int gradesw)
-
-{
- /* sort on 11, 11 and 10 bits */
-  unsigned    groups[2048];
-
-  int         j,
-              part,
-              pointer;
-
-  /* initialize groups */
-  for (j = 0; j < 2048; j++)
-    groups[j] = 0;
-
-  /* count size of groups */
-  for (j = 0; j < n; j++) {
-    if (gradesw)
-      part = (integers[inds[j]] >> shift) & mask; /* least  */
-    else
-      part = (integers[j] >> shift) & mask; /* least  */
-    groups[part]++;
-  }
-
-  /* determine pointers to start of non-empty groups */
-  groups[2047] = n - groups[2047];
-  for (j = 2046; j >= 0; j--)
-    groups[j] = groups[j + 1] - groups[j];
-
-  /* distribute array reals over groups */
-  for (j = 0; j < n; j++) {
-    if (gradesw) {
-      pointer = (integers[inds[j]] >> shift) & mask;  /* least  */
-      new_arr[groups[pointer]] = inds[j];
-    }
-    else {
-      pointer = (integers[j] >> shift) & mask;  /* least  */
-      new_arr[groups[pointer]] = integers[j];
-    }
-    groups[pointer]++;
-  }
-
-}
-
-/* radix sort for integers */
-
-static void
-nialradixsortupint()
-{
-    nialptr     x = apop();
-    nialptr     z,
-    newz;
-    int         v = valence(x);
-    nialint     i,
-    t = tally(x);
-    unsigned *zp,
-             *newzp;
-    z = new_create_array(inttype, v, 0, shpptr(x, v));
-    newz = new_create_array(inttype, v, 0, shpptr(x, v));
-    copy(z, 0, x, 0, t);
-    zp = (unsigned *) pfirstint(z);
-    newzp = (unsigned *) pfirstint(newz);
-    nialradixsort(zp, newzp, zp, t, 0, 0x7ff, false);
-    nialradixsort(newzp, zp, zp, t, 11, 0x7ff, false);
-    nialradixsort(zp, newzp, zp, t, 22, 0x3ff, false);
-    i = 0;
-    while (i < t && fetch_int(newz, i) >= 0)
-        i++;
-    if (i > 0 && i < t) {
-        copy(z, 0, newz, i, t - i);
-        copy(z, t - i, newz, 0, i);
-        apush(z);
-        freeup(newz);
-    }
-    else {
-        apush(newz);
-        freeup(z);
-    }
-    freeup(x);
-}
-
-
-static void
-nialradixgradeupint()
-{
-    nialptr     x = apop();
-    nialptr     z,
-    newz,
-    indices;
-    int         v = valence(x);
-    nialint     i,
-    t = tally(x);
-    unsigned   *zp,
-    *newzp,
-    *indp;
-    z = new_create_array(inttype, v, 0, shpptr(x, v));
-    newz = new_create_array(inttype, v, 0, shpptr(x, v));
-    copy(z, 0, x, 0, t);
-    apush(x);                  /* protect x */
-    apush(x);                  /* get tell tally x into indices */
-    itally();
-    itell();
-    indices = apop();
-    apop();                    /* unprotect x */
-    zp = (unsigned *) pfirstint(z);
-    newzp = (unsigned *) pfirstint(newz);
-    indp = (unsigned *) pfirstint(indices);
-    nialradixsort(zp, newzp, indp, t, 0, 0x7ff, true);
-    nialradixsort(zp, indp, newzp, t, 11, 0x7ff, true);
-    nialradixsort(zp, newzp, indp, t, 22, 0x3ff, true);
-    i = 0;
-    while (i < t && fetch_int(z, fetch_int(newz, i)) >= 0)
-        i++;
-    if (i > 0 && i < t) {
-        copy(z, 0, newz, i, t - i);
-        copy(z, t - i, newz, 0, i);
-        apush(z);
-        freeup(newz);
-    }
-    else {
-        apush(newz);
-        freeup(z);
-    }
-    freeup(indices);
-    freeup(x);
-}
-
-#endif  /* INDS32 */
-
-#ifdef INTS64
-static void
-nialradixsort(unialint *integers, unialint *new_arr, unialint *inds,
-          nialint n, int shift, int mask, int gradesw)
-
-{
- /* sort on 4 groups of 16 bits */
-  unialint    groups[65536];
-
-    nialint   j,
-              part,
-              pointer;
-
-  /* initialize groups */
-  for (j = 0; j < 65536; j++)
-    groups[j] = 0L;
-
-  /* count size of groups */
-  for (j = 0; j < n; j++) {
-    if (gradesw)
-      part = (integers[inds[j]] >> shift) & mask; /* least  */
-    else
-      part = (integers[j] >> shift) & mask; /* least  */
-
-    groups[part]++;
-  }
-
-  /* determine pointers to start of non-empty groups */
-  groups[65535] = n - groups[65535];
-    for (j = 65534; j >= 0; j--)
-    groups[j] = groups[j + 1] - groups[j];
-    
-  /* distribute array reals over groups */
-  for (j = 0; j < n; j++) {
-    if (gradesw) {
-      pointer = (integers[inds[j]] >> shift) & mask;  /* least  */
-      new_arr[groups[pointer]] = inds[j];
-    }
-    else {
-      pointer = (integers[j] >> shift) & mask;  /* least  */
-      new_arr[groups[pointer]] = integers[j];
-    }
-    groups[pointer]++;
-  }
-
-}
-
-
-
-/* radix sort for integers */
-
-static void
-nialradixsortupint()
-{
-  nialptr     x = apop();
-  nialptr     z,
-              newz;
-  int         v = valence(x);
-  nialint     i,
-              t = tally(x);
-  unialint    *zp,
-              *newzp;
-  z = new_create_array(inttype, v, 0, shpptr(x, v));
-  newz = new_create_array(inttype, v, 0, shpptr(x, v));
-
-  copy(z, 0, x, 0, t);
-  zp = (unialint *) pfirstint(z);
-  newzp = (unialint *) pfirstint(newz);
-
-  nialradixsort(zp, newzp, zp, t, 0, 0xffff, false);
-  nialradixsort(newzp, zp, zp, t, 16, 0xffff, false);
-  nialradixsort(zp,newzp, zp, t, 32, 0xffff, false);
-  nialradixsort(newzp, zp, zp, t, 48, 0xffff, false);
-
-
-  i = 0;
-  while (i < t && fetch_int(z, i) >= 0)
-    i++;
-  if (i > 0 && i < t) {
-    copy(newz, 0, z, i, t - i);
-    copy(newz, t - i, z, 0, i);
-    apush(newz);
-    freeup(z);
-  }
-  else {
-    apush(newz);
-    freeup(z);
-  }
-  freeup(x);
-
-}
-
-static void
-nialradixgradeupint()
-{
-  nialptr     x = apop();
-  nialptr     z,
-              newz,
-              newz2,
-              indices;
-  int         v = valence(x);
-  nialint     i,
-              t = tally(x);
-  unialint    *zp,
-             *newzp,
-             *newz2p,
-             *indp;
-
-
-  z = new_create_array(inttype, v, 0, shpptr(x, v));
-  newz = new_create_array(inttype, v, 0, shpptr(x, v));
-  newz2 = new_create_array(inttype, v, 0, shpptr(x, v));
-
-  copy(z, 0, x, 0, t);
-  apush(x);                  /* protect x */
-  apush(x);                  /* get tell tally x into indices */
-  itally();
-  itell();
-  indices = apop();
-  apop();                    /* unprotect x */
-  zp = (unialint *) pfirstint(z);
-  newzp = (unialint *) pfirstint(newz);
-  newz2p = (unialint *) pfirstint(newz);
-  indp = (unialint *) pfirstint(indices);
-
-  nialradixsort(zp, newzp, indp, t, 0, 0xffff, true);
-  nialradixsort(zp, indp, newzp, t, 16, 0xffff, true);
-  nialradixsort(zp, newzp, newz2p, t, 32, 0xffff, true);
-  nialradixsort(zp, newz2p, indp, t, 48, 0xffff, true);
-
-    i = 0;
-    while (i < t && fetch_int(z, fetch_int(newz, i)) >= 0)
-        i++;
-    if (i > 0 && i < t) {
-        copy(z, 0, newz, i, t - i);
-        copy(z, t - i, newz, 0, i);
-        apush(z);
-        freeup(newz);
-    }
-    else {
-        apush(newz);
-        freeup(z);
-    }
-    freeup(indices);
-    freeup(newz2);
-    freeup(x);
-}
-
-
-#endif /* INDS64 */
 
 
 /* routine to implement the transformer FORK with 3 or more operations
@@ -2149,18 +1727,8 @@ iacross()
     a = apop();
 
     /* set up the end value and apply the endf function */
-#ifdef V4AT
-    if (tally(a)==0)
-    { apush(a);
-      ilist();
-    }
-    else
-    { apush(fetchasarray(a,tally(a)-1));
-      ivoid();
-    }
-#else
+
     apush(Null);  /* end value */
-#endif
     do_apply(endf);
 
     /* loop over items of the argument in reverse order */
@@ -2211,9 +1779,6 @@ iacross()
         IF B = "MARKER THEN
            Candidates Shp := [front,last] Candidates;
            N := prod Shp;
-           IF ATversion = "V4AT and (N = 0) THEN
-              N := N + 1;
-           ENDIF;
            Results Items := opp N [drop,take] Results;
            Results := Results append joinf (Shp reshape Items);   
         ELSEIF test B THEN
@@ -2221,9 +1786,6 @@ iacross()
         ELSE
            B := structf B;
            Candidates := Candidates link [shape B,"MARKER] link reverse list B;
-           IF ATversion = "V4AT and empty B THEN
-              Candidates := Candidates append first B;
-           ENDIF;
         ENDIF;
       ENDWHILE;
       first Results }
@@ -2316,10 +1878,6 @@ idown()
         res = apop();
         n = intval(res);
         freeup(res);
-#ifdef V4AT
-        if (n==0)
-          n += 1; /* add 1 to allow for prototype */
-#endif
 
         /* loop over the last n items of the results pushing them */
         for (k=0;k<n;k++)
@@ -2382,10 +1940,6 @@ idown()
           do_apply(structf);
           apush(top);
           bsize = tally(top);
-#ifdef V4AT 
-          if (bsize==0)
-            bsize += 1; /* add 1 for prototype */
-#endif
           ishape(); /* get shape of result and leave on stack */
            
           /* make sure there is room in candidates for items of B, shape & marker */
@@ -2727,23 +2281,6 @@ accumulate(nialptr f)
 }
 
 
-#ifdef V4AT
-
-void
-irank()
-{ apop();
-  freeup(apop());
-  apush(makefault("?RANK not implemented in V4AT"));
-}
-
-void
-ibykey()
-{ apop();
-  freeup(apop());
-  apush(makefault("?BYKEY not implemented in V4AT"));
-}
-
-#else
 
 /* routine to implement the tranformer N RANK f A, which applies 
    f to the subarrays of f of rank N and mixes the result.
@@ -3026,4 +2563,3 @@ ibykey()
   apush(z);
 }
 
-#endif  /* of non V4AT routines for RANK and BYKEY */

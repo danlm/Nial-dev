@@ -106,15 +106,6 @@ static nialint  Xoco(void);
 static nialint  Xoct(void);
 static nialint  Xto(void);
 static nialint  Xtco(void);
-#ifdef TR_EXPRESSIONS
-static  nialint Xat(void );
-static  nialint Xot(void );
-static  nialint Xta(void );
-static  nialint Xtca(void );
-static  nialint XtcRE(void );
-static  nialint Xttc(void );
-static  nialint Xt_(void );
-#endif
 static nialint  OPERATION(nialptr * tree);
 static nialint  TR_FORM(nialptr * tree);
 static nialint  Xcmb(int t, nialptr(*b) (nialptr t1, nialptr t2));
@@ -1179,14 +1170,6 @@ Xao()
   return (XcmbR(s_O, b_curried));
 }                            /* A O -> O */
 
-#ifdef TR_EXPRESSIONS
-static nialint 
-Xat() 
-{
-   return(XcmbR(s_T,b_at_tr));
-}                          /* A T -> T */
-#endif
-
 
 static nialint
 XaRE()
@@ -1206,15 +1189,6 @@ Xoo()
   additem(s_OC);
   return (SUCCEED);
 }
-
-#ifdef TR_EXPRESSIONS
-static nialint 
-Xot() 
-{
-   return(XcmbR(s_T,b_ft_tr));
-}                          /* O T -> T */
-#endif
-
 
 static nialint
 XoRE()
@@ -1254,42 +1228,17 @@ Xoct()
   return (SUCCEED);
 }
 
-#ifdef TR_EXPRESSIONS
-static nialint 
-Xta() 
-{
-  return(Xtca());
-}                        /* T A -> T */
-#endif
-
 static nialint
 Xto()
 {
   return (Xtco());
 }                            /* T O -> T */
 
-#ifdef TR_EXPRESSIONS
-static nialint 
-Xtca() 
-{
-   return(Xcmb(s_T,b_ta_tr));
-}                          /* TC A -> T */
-#endif
-
 static nialint
 Xtco()
 {
   return (Xcmb(s_O, b_transform));
 }                            /* TC O -> T */
-
-
-#ifdef TR_EXPRESSIONS
-static nialint 
-Xttc() 
-{
-   return(Xcmb(s_TC,b_trcompose));
-}                           /* TC T -> TC */
-#endif
 
 static nialint
 XtcRE()
@@ -1395,29 +1344,10 @@ cant()
       determines the row.  REDUCE does the table lookup and invokes
       the selected routine.  The routines (below) act upon the top
       of the stack, report errors, or do nothing.
-      The first version implements tranformer expressions of V4 Nial.
-      The second version handles the more restricted syntax of V6 Nial.
+ 
 */
 
 typedef     nialint(*func_ptr) (void);
-
-#ifdef TR_EXPRESSIONS
-static nialint (*reducetab[100])() = {
-/*         ---p--- ---s--- ---a--- ---o--- --oc--- ---t--- --tc--- ---le-- ---re-- ---n---  */
-
-/* P  */   Xpp,    cant,   cant,   Xp_,    cant,   Xp_,    Xp_,    shift,  Xp_,    X_n,
-/* S  */   Xsp,    cant,   cant,   Xs_,    cant,   Xs_,    Xs_,    shift,  Xs_,    X_n,
-/* A  */   cant,   cant,   cant,   Xao,    cant,   shift,  Xat,    shift,  XaRE,   X_n,
-/* O  */   shift,  shift,  Xoa,    Xoo,    cant,   shift,  Xot,    shift,  XoRE,   X_n,
-/* OC */   Xocp,   cant,   cant,   Xoco,   cant,   Xoct,   cant,   shift,  XocRE,  X_n,
-/* T  */   shift,  shift,  Xta,    Xto,    cant,   shift,  Xttc,   shift,  Xt_,    X_n,
-/* TC */   cant,   cant,   Xtca,   Xtco,   cant,   cant,   cant,   shift,  XtcRE,  X_n,
-/* LE */   shift,  shift,  shift,  shift,  shift,  shift,  shift,  shift,  XLERE,  shift,
-/* RE */   cant,   cant,   cant,   cant,   cant,   cant,   cant,   cant,   cant,   cant,
-/* N  */   Xn_,    Xn_,    Xn_,    Xn_,    Xn_,    Xn_,    Xn_,    shift,   XnRE,   X_n
-};
-
-#else
 
 
 static func_ptr reducetab[100] = {
@@ -1442,7 +1372,6 @@ static func_ptr reducetab[100] = {
   shift, XnRE, X_n
 };
 
-#endif
 
 /* QUOTEPGM recognizes quoted-code primaries for SHIFT
    The valid forms are:
@@ -1696,15 +1625,9 @@ brackets()
                     listkind = s_O;
                     break;
                 case s_T:
-#ifdef TR_EXPRESSIONS
-                    newtag = t_galaxy;
-                    listkind = s_T;
-                    break;
-#else
                     error(invalid_optn, 270);
                     freeup(listholder);
                     return (ERROR);
-#endif
               }
               /* start the list */
               store_array(listholder, 0, createint(newtag));
@@ -1725,14 +1648,9 @@ brackets()
                     newkind = s_O;
                     break;
                 case s_T:
-#ifdef TR_EXPRESSIONS
-                    newkind = s_T;
-                    break;
-#else
                     error(invalid_optn, 271);
                     freeup(listholder);
                     return (ERROR);
-#endif
               }
 
               if (newkind == listkind) { /* new item is consistent */

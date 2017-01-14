@@ -316,26 +316,11 @@ nial_plus(nialptr x, nialptr y)
           z = Arith;
       }
       else
-#ifdef V4AT
-      if (!numeric(ky))
-        z = Arith;
-      else
-        z = x;
-#else
-          z = x; 
-#endif
+          z = x;
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
       z = Arith;
   }
@@ -392,18 +377,9 @@ retry:
         break;
     case atype:
         if (tx == 0) 
-#ifdef V4AT
-        { nialptr archetype;
-          archetype = fetch_array(x,0);
-          apush(archetype);
-          apush(Zero);
-          b_times();
-        }
-#else
         {
           apush(Zero);
         }
-#endif
         else if (simple(x)) {
           int         newk;
 
@@ -650,26 +626,12 @@ nial_times(nialptr x, nialptr y)
           z = Arith; 
       }
       else
-#ifdef V4AT
-      if (!numeric(ky))
-        z = Arith;
-      else
-        z = x;
-#else
+
         z = x; 
-#endif
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
       z = Arith;
   }
@@ -729,19 +691,10 @@ retry:
         apush(x);
         break;
     case atype:
-        if (tx == 0) 
-#ifdef V4AT
-        { apush(fetch_array(x,0));
-          apush(Zero);
-          b_times();
-          apush(One);
-          b_plus();
-        }
-#else
+        if (tx == 0)
         {
           apush(One);
         }
-#endif
         else if (simple(x)) {
           int         newk;
 
@@ -1031,26 +984,11 @@ nial_minus(nialptr x, nialptr y)
           z = Arith; 
       }
       else
-#ifdef V4AT
-      if (!numeric(ky))
-        z = Arith;
-      else
-        z = x;
-#else
         z = x; 
-#endif
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
       z = Arith;
   }
@@ -1251,34 +1189,12 @@ nial_divide(nialptr x, nialptr y)
           z = Arith; 
       }
       else
-#ifdef V4AT
-      if (!numeric(ky)|| y==Zero || y==Zeror || y==False_val)
-        z = Arith;
-      else
-        z = x;
-#else
         z = x; 
-#endif
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
-/*
-#ifdef V4AT
-    if (y==Zero || y ==Zeror || y == False_val)
-      z = Divzero;
-    else
-#endif
-*/
       z = Arith;
   }
   else {
@@ -1657,10 +1573,6 @@ icharrep()
 void
 iopposite()
 {
-#ifdef V4AT 
-  if (kind(top)==faulttype)
-    return;
-#endif
   if (!atomic(top))
     int_each(iopposite,apop());
   else
@@ -1673,10 +1585,6 @@ iopposite()
 void
 ireciprocal()
 {
-#ifdef V4AT 
-  if (kind(top)==faulttype)
-    return;
-#endif
   if (!atomic(top))
     int_each(ireciprocal,apop());
   else
@@ -1851,6 +1759,7 @@ ipower()
             apush(createreal(r));
           }
           else if (r0 < .0) {
+              
              /* printf("negative first arg\n"); */
             if (r1 == floor(r1)) {
                nialint i1 = r1; /* convert  second arg to an integer */
@@ -2002,26 +1911,11 @@ b_quotient()
           z = Arith; 
       }
       else
-#ifdef V4AT
-      if (!numeric(ky))
-        z = Arith;
-      else
-        z = x;
-#else
-        z = x; 
-#endif
+          z = x;
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
       z = Arith;
   }
@@ -2197,26 +2091,11 @@ b_mod()
           z = Arith; 
       }
       else
-#ifdef V4AT
-      if (!numeric(ky))
-        z = Arith;
-      else
-        z = x;
-#else
         z = x; 
-#endif
     }
     else 
     if (ky == faulttype)
-#ifdef V4AT
-    { if (!numeric(kx))
-        z = Arith;
-      else
-        z = y;
-    }
-#else
       z = y;
-#endif
     else                     /* chartype or phrasetype cause a fault */
       z = Arith;
   }
@@ -2300,12 +2179,18 @@ void
 iseed()
 {
   nialptr     x = apop();
-   if (kind(x) == realtype) {
-    apush(createreal(frandx / M));
-    frandx = floor(realval(x) * M + .49999);
+  if (kind(x) == realtype) {
+    double s;
+    s = realval(x);
+    if (s > 0. && s <= 1.0) {
+      apush(createreal(frandx / M));
+      frandx = floor(s * M + .49999);
+    }
+    else
+      apush(makefault("?seed requires a real argument between 0. and 1.0"));
   }
   else
-    apush(makefault("?fseed requires a real argument"));
+    apush(makefault("?iseed requires a real argument"));
 
   freeup(x);
 }

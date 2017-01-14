@@ -9,6 +9,10 @@ TIMEHOOK -
 DIRECTIO -
 PROFILE -
 USEROPS -
+NFILES -
 
 UHTABLE ntables.ndf
+
+WINPROCESS  -
+
 

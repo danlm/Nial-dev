@@ -58,11 +58,17 @@
 #define ALLBITSON (-1)
 #define LARGEINT 9223372036854775807
 #define SMALLINT (-9223372036854775807 - 1)
+#ifdef CAUTIOUS_FLOOR
 #define LARGEINT_Boundary 9007199254740992.0
 #define SMALLINT_Boundary -9007199254740992.0
+#else
+#define LARGEINT_Boundary 9223372036854775807.0
+
+#define SMALLINT_Boundary (-9223372036854775807.0 - 1)
+#endif
 #endif
 
-#ifdef WINDOWS
+#ifdef WINNIAL
 #define NIALONEBIT (1LL)
 #define ALLBITSON (-1LL)
 #define LARGEINT 9223372036854775807LL
@@ -94,7 +100,7 @@
 #ifdef UNIXSYS
 #define sizeofnialint sizeof(long)
 #endif
-#ifdef WINDOWS
+#ifdef WINNIAL
 #define sizeofnialint sizeof(long long)
 #endif
 
@@ -115,7 +121,7 @@
 #ifdef UNIXSYS
 #define NIALINT_FORMAT "%ld"
 #endif
-#ifdef WINDOWS
+#ifdef WINNIAL
 #define NIALINT_FORMAT "%lld"
 #endif
 

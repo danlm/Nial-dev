@@ -42,7 +42,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Windows specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINDOWS")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINDOWS -DWINNIAL")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 
@@ -55,7 +55,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 set (NIAL_SRCS absmach.c
           arith.c 
           atops.c 
-					basics.c 
+	  basics.c 
           blders.c
           compare.c
           diag.c
@@ -65,6 +65,7 @@ set (NIAL_SRCS absmach.c
           linalg.c
           logicops.c
           main_stu.c
+          linenoise.c
           parse.c
           picture.c
           profile.c
@@ -75,7 +76,7 @@ set (NIAL_SRCS absmach.c
           trs.c
           userops.c
           unixif.c
-					windowsif.c
+	windowsif.c
           utils.c
           wsmanage.c
           posix_regex.c
@@ -84,23 +85,25 @@ set (NIAL_SRCS absmach.c
           sprocess.c
           memspaces.c
           nstreams.c
-					catch_throw.c
-					bitops.c
+	catch_throw.c
+	bitops.c
           sorts.c
           fileio.c
-          sockets.c)
+          sockets.c
+	nfiles.c
+	winprocess.c)
 
 
 # ---------------- Standard Libraries --------------------
 
 # Linux specific settings
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set (NIAL_LIBS m readline util dl)
+	set (NIAL_LIBS m util dl)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set (NIAL_LIBS m readline util dl)
+	set (NIAL_LIBS m util dl)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Windows specific flags
@@ -131,16 +134,6 @@ if (NIAL_PKG_MEMSPACES)
     set (NIAL_LIBS ${NIAL_LIBS} rt)
   endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif (NIAL_PKG_MEMSPACES)
-
-# Libraries and compilation options for OpenCL
-if (NIAL_PKG_N_OPENCL)
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set (NIAL_LIBS ${NIAL_LIBS} OpenCL)
-  endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set (NIAL_LIBS "${NIAL_LIBS} -framework OpenCL")
-  endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-endif (NIAL_PKG_N_OPENCL)
 
 # ---------------- Core Executable -------------------------
 

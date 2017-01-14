@@ -54,7 +54,7 @@
 #ifdef UNIXSYS
 #include <sys/times.h>
 #endif
-#ifdef WINDOWS
+#ifdef WINNIAL
 #include <sys/time.h>
 #endif
 #include <sys/param.h>
@@ -755,84 +755,6 @@ apply_transform(nialptr tr)
         }
         break;
 
-#ifdef TR_EXPRESSIONS /* ( */
-     /* the following transformer expressions are in Version 4 Array Theory.
-        They add little to the expressive power of Nial and are omitted in
-        Version 6. */
-
-   case t_at_tr: /* an AT tranformer e.g. 2 FOLD
-                      obeys (A T) f B =.  A (T f) B */
-      { nialptr left;
-        eval(get_argexpr(tr));
-        left = apop();
-        swap(); /* puts arg value on top */
-        pair(left,apop());
-        swap(); /* to put oparg back on top */
-        apply_transform(get_tr(tr));
-        break;
-      }
-
-    case t_ft_tr: /* an FT transformer e.g. equal EACH
-                     obeys (f T) g A = f (T g) A */
-      apply_transform(get_tr(tr));
-      apply(get_argop(tr));
-      break;
-
-    case t_ta_tr: /* a TA transformer e.g. EACH 3
-                     obeys (T A) f B = T (A f) B */
-      { nialptr op,op1;
-        op = apop();
-        op1 = b_curried(op,get_argexpr(tr));
-        apush(op1);
-        incrrefcnt(op1);
-        apply_transform(get_tr(tr));
-        apush(op); /* to protect op as a component of op1 */
-        decrrefcnt(op1);
-        freeup(op1);
-        apop(); /* to unprotect op */
-      }
-      break;
-
-    case t_trcompose: /* transformer composition  obeys
-                          (T U) f A = T (U f) A */
-      { nialptr op,op1;
-        op = apop();
-        op1 = b_transform(get_tr2(tr),op);
-        apush(op1);
-        incrrefcnt(op1);
-        apply_transform(get_tr(tr));
-        apush(op); /* protect op while freeing op1 */
-        decrrefcnt(op1);
-        freeup(op1);
-        apop(); /* unprotect op */
-      }
-      break;
-
-    case t_galaxy: /* galaxy of transformers
-                    [T, U, ... ] f A = [T f A, U f A, ... ] */
-      { nialint i,tly;
-        nialptr op = apop(),
-        arg = top; /* leave on stack to protect */
-        tly = tally(tr);
-        for (i=1;i<tly;i++)
-        { apush(arg);
-          apush(op);
-          apply_transform(fetch_array(tr,i));
-        }
-        mklist(tally(tr)-1);
-        swap();
-        freeup(apop());
-          /* remove protected arg value */
-      }
-      break;
-
-    case t_parendobj:
-    case t_dottedobj:
-      apply_transform(get_obj(tr));
-      break;
-
-#endif /* TR_EXPRESSIONS ) */
-
 
     default:
 #ifdef DEBUG
@@ -1417,22 +1339,6 @@ coerceop()
       break;
     op = fetch_var(get_sym(op), get_entry(op));
   }
-
-#ifdef TR_EXPRESSIONS
-  if (tag(op)==t_transform) 
-  { nialptr tr = get_tr(op),
-            f = get_argop(op);
-    if (tag(tr)==t_galaxy)
-    { nialint i, atly = tally(tr);
-      apush(createint(t_atlas));
-      for (i=1;i<atly;i++)
-        apush(b_transform(fetch_array(tr,i),f));
-      mklist(atly);
-      op = apop();
-    }
-  }
-#endif
-
   apush(op);
 }
 

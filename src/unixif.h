@@ -37,7 +37,7 @@ extern time_t time(time_t *);
 
 extern FILE *openfile(char *flnm, char modechar, char type);
 extern void closefile(FILE * file);
-extern nialint  fileptr(FILE * file);
+extern long  fileptr(FILE * file);
 extern nialint  readchars(FILE * file, char *buf, int n, int *nlflag);
 extern nialint  writechars(FILE * file, char *buf, nialint n, int nlflag);
 extern nialint  readblock(FILE * file, char *buf, size_t n, int seekflag, size_t pos, int dir);

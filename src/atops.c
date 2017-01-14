@@ -65,9 +65,7 @@ static void cutorcutall(nialptr x, nialptr y, int cutprim);
 static void nial_solitary(nialptr x);
 static void takedrop(nialptr x, nialptr y, int istake);
 static void nseek(nialptr x, nialptr y);
-#ifndef V4AT
 static void pack(nialptr x);
-#endif
 static int  validshape(nialptr x);
 static void sublist(nialptr x, nialptr y);
 static void sfindallint(nialptr x, nialptr y, int firstonly);
@@ -85,9 +83,7 @@ extern nialptr globalx;
 
 /* routine to implement the operation "shape". The result gives
    the lengths of the axes as stored in the representation for
-   an array. There are two versions.
-   The flag V4AT selects code that returns an integer
-   for the shape of a list. The V6AT result is that the shape of a list
+   an array. The result is that the shape of a list
    is the solitary of the integer. */
 
 void
@@ -99,20 +95,6 @@ ishape()
   if (v==0)
     { apush(Null); }
   else
-#ifdef V4AT 
-  /* shape of a list is an integer */
-  if (v ==
-    { apush(createint(tally(x)));}
-  else {
-    nialptr     z = new_create_array(inttype, 1, 0, &v);
-    nialint    *shptr = shpptr(x, v); /* Safe. done after create. */
-
-    for (i = 0; i < v; i++)
-      store_int(z, i, *shptr++);
-    apush(z);
-    
-  }
-#else
   /* shape is always a list */
     { nialptr z;
       nialint *shptr;
@@ -122,17 +104,15 @@ ishape()
       store_int(z, i, shptr[i]);
     apush(z);
   }
-#endif
   freeup(x);
 }
 
 
-/* implements first, whih returns the first item of the array.
-   There are two versions that differ only when the argument is empty.
-   The flag V4AT selects code that returns prototype of an empty array.
-   The V6AT result is the fault ?address for an empty array. 
+/* implements first, which returns the first item of the array.
+ 
+   The result is the fault ?address for an empty array.
 
-   V6 Rules:
+   Array Theory Rules:
      atomic A => first A = A
      nonempty A => first A = 0 pick list A
      empty A => first A = ??address
@@ -152,15 +132,11 @@ ifirst()
   x = apop();
   if (atomic(x))
     z = x;
-  else 
-#ifdef V4AT
-    z = fetchasarray(x, 0);
-#else
+  else
   if (tally(x) > 0)
     z = fetchasarray(x, 0);
   else
     z = makefault("?address");
-#endif
   apush(z);
   freeup(x);
 }
@@ -196,9 +172,7 @@ isolitary()
 }
 
 /* implements rest, which returns the list of all but the first items of the argument.
-   There are two versions that differ only when the argument has one item.
-   The flag V4AT selects code that returns an empty whose prototype is the one item of the array.
-   The V6AT result is the empty list Null.
+   The result is the empty list Null when the argument has only one item.
 */
 
 void
@@ -214,15 +188,7 @@ irest()
 
     zt = (t > 0 ? t - 1 : 0);
     if (zt == 0)
-#ifdef V4AT
-    { nialptr y;
-      z = new_create_array(atype,1,0,&zt);
-      y = fetchasarray(x,0);
-      store_array(z,0,y);
-    }
-#else
       z = Null;
-#endif
     else {
       z = new_create_array(kind(x), 1, 0, &zt);
       copy(z, 0, x, 1, zt);
@@ -407,11 +373,7 @@ hitch(nialptr x, nialptr y)
 static int
 validshape(nialptr x)
 {
-#ifdef V4AT
-  if (tally(x)==0)
-#else
   if (x == Null)
-#endif
     return (true);
   if (kind(x) != inttype)
     return (false);
@@ -432,11 +394,11 @@ validshape(nialptr x)
 /* routine to implement Nial primitive reshape.
   The usage: x reshape y produces an array of with shape given by x using the items of y cyclically.
   If x is not a list then it is treated as one. y can be of any shape.
-  There are two versions.
-  The V6AT version insists that x be a valid shape after being listed otherwise it returns the fault ?shape.
-  IF y is empty and x implies a nonempty result then the fault ?fill is used as the items of the result.
-  The V4AT version applies the operation gage to x to ensure that the result x'is a valid shape.
-  It uses x' as the new left argument. If y is empty it uses the prototype as the items of the result. 
+  x must be a valid shape after being listed otherwise it returns the fault ?shape.
+  IF y is empty and x implies a nonempty result then the fault ?fill is used as the 
+  items of the result.
+ 
+ 
 */
 
 void
@@ -445,14 +407,12 @@ b_reshape()
   nialptr     y = apop(),
               x = apop();
 
-#ifndef V4AT
   if (!validshape(x)) {
     apush(makefault("?shape"));
     freeup(x);
     freeup(y);               /* in case they are split from a pair of ints */
     return;
   }
-#endif
   reshape(x, y);
 }
 
@@ -473,7 +433,6 @@ ireshape()
                 y;
 
     splitfb(z, &x, &y);
-#ifndef V4AT
     if (!validshape(x)) {
       apush(makefault("?shape"));
       freeup(x);
@@ -481,7 +440,6 @@ ireshape()
       freeup(z);
       return;
     }
-#endif
     reshape(x, y);
   }
   freeup(z);
@@ -505,27 +463,12 @@ reshape(nialptr x, nialptr y)
   tx = tally(x);
   ty = tally(y);
   if (tx == 0) {             /* making a single */
-    if (ty == 0) 
-#ifdef V4AT
-    { nialptr z, w;
-      w = fetchasarray(y,0);   /* archetype of y */
-      if (atomic(w))
-        { apush(w); }
-      else
-      { z = new_create_array(atype,0,0,&tx);
-        store_array(z,0,w);
-        apush(z);
-      }
-      freeup(x);
-      freeup(y);
-    }
-#else
+    if (ty == 0)
     {           /* use a fill */
       apush(makefault("?fill"));
       freeup(x);
       freeup(y);
     }
-#endif
     else {                   /* reshaping with an empty is single first y */
       apush(y);
       ifirst();
@@ -539,20 +482,11 @@ reshape(nialptr x, nialptr y)
     nialptr     z;
     int         kz;
 
-#ifdef V4AT
-    x = gage(x);
-    tx = tally(x);
-#endif
-
     if (!prodints(pfirstint(x), tx, &cnt))
         exit_cover1("integer overflow in reshape", NC_WARNING);
     if (j == 0 && cnt != 0) {/* must fill with an item */
       nialptr f;
-#ifdef V4AT
-      f = fetchasarray(y,0);  /* fill with archetype of y */
-#else
       f = makefault("?fill"); /* fill with a fault */
-#endif
       freeup(y);
       nial_solitary(f);
       y = apop();
@@ -561,32 +495,11 @@ reshape(nialptr x, nialptr y)
     }
     kz = ky;
     if (cnt == 0)
-#ifdef V4AT
-    {
-      cnt = 1;
       kz = atype;
-      z = new_create_array(kz, tx, 0, pfirstint(x));
-      store_array(z,0,fetchasarray(y,0));
-      apush(z);
-      freeup(x);
-      freeup(y);
-      return;
-    }
-#else
-      kz = atype;
-#endif
     z = new_create_array(kz, tx, 0, pfirstint(x));
     i = 0;
     while (i < cnt) {
       k = (j < cnt - i ? j : cnt - i);
-#ifdef V4AT
-      if (ky != kz)
-      { nialint jj;
-        for (jj=0;jj<k;jj++)
-          store_array(z,i+jj,fetchasarray(y,jj));
-      }
-      else
-#endif
       copy(z, i, y, 0, k);   /* copy in chunks the size of y */
       i += k;
     }
@@ -649,10 +562,6 @@ ilist()
     else {
       nialint     tx = tally(x);
       nialptr     z = new_create_array(kind(x), 1, 0, &tx);
-#ifdef V4AT
-      if (tx==0)
-        tx = 1;   /* so that the archetype is copied */
-#endif
       copy(z, 0, x, 0, tx);
       if (is_sorted(x))
         set_sorted(z, true);
@@ -846,10 +755,7 @@ iunequal()
 
 /* implements the Nial primitive link.
    The result is the list of the items of the items of the argument.
-   In V6AT if the result is empty it is the Null.
-   In V4AT if the result is empty its prototype is the prototype of 
-   the first item of the argument. If the argument is empty the prototype of 
-   the result is the first of the prototype of the empty.
+   The result is empty if it is the Null.
 */
 
 
@@ -888,20 +794,9 @@ ilink()
     if (ovfl)
         exit_cover1("integer overflow in link", NC_WARNING);
     if (tz == 0)             /* if empty case */
-#ifdef V4AT
-    { nialptr a, b, z;
-      a = fetchasarray(x,0);
-      b = fetchasarray(a,0); /* archetype of first item */
-      z = new_create_array(atype,1,0,&tz);
-      store_array(z,0,b);
-      apush(z);
-      freeup(x);
-    }
-#else
     { apush(Null);
       freeup(x);
     }
-#endif
     else {
       nialptr     z,
                   xi;
@@ -953,7 +848,7 @@ ilink()
   }
 }
 
-/* the next two routines implement the operation gage in V4AT.
+/* the next two routines implement the operation gage.
    It converts any array to a shape by taking its content and replacing any
    items that are not nonnegative integers by zero.
 */
@@ -1021,10 +916,6 @@ gage(nialptr x)
   tx = tally(x);
   v = valence(x);
   z = new_create_array(tx==0?atype:inttype,v,0,shpptr(x,v));
-#ifdef V4AT
-  if (tx==0)
-    tx = 1;
-#endif
   for (i=0;i<tx;i++)
   { nialptr it = fetchasarray(x,i);
     if (kind(it)==inttype && intval(it) >=0)
@@ -1063,9 +954,7 @@ gage(nialptr x)
    index of A. The items of the resulting address are the indicies in
    the lists of items of the items of A needed to do the proper
    selection. Carl's algorithm is used for the non-boundary cases.
-   In V6AT if the argument is empty then the result is the single of the argument.
-   In V4AT if the argument is empty the result is the single of EACH first
-   of the argument.
+   If the argument is empty then the result is the single of the argument.
 */
 
 void
@@ -1089,15 +978,8 @@ icart()
   if (atomic(top))
     return;                  /* atomic arg, result is arg */
   if (tally(top) == 0) {     /* empty arg */
-#ifdef V4AT
-    /* the result is single EACH first of the argument */
-    nialptr arg = apop();
-    int_each(ifirst, arg);
-    isingle();
-#else
     /* the result is single of the argument */
     isingle();
-#endif
     return;
   }
   if (homotype(kind(top))) { /* simple arg, result is single of arg */
@@ -1118,9 +1000,7 @@ icart()
   int_each(ishape, apop());  /* uses the first copy of arg */
   ilink();
   sc = apop();               /* gives the shape of the result */
-#ifdef V4AT
-  sc = gage(sc);
-#endif
+
   if (!prodints(pfirstint(sc), tally(sc), &tc))
       exit_cover1("integer overflow in cart", NC_WARNING);
   int_each(itally, apop());  /* uses the second copy */
@@ -1131,10 +1011,6 @@ icart()
   si = apop();               /* shape of the argument */
   arg = apop();              /* get the final copy of arg  */
   ti = tally(arg);
-#ifdef V4AT
-  if (tc == 0) 
-    tc = 1;
-#endif
   if (tc>0)
   {
     result = new_create_array(atype, tally(sc), 0, pfirstint(sc));
@@ -1173,26 +1049,17 @@ icart()
 void
 ivoid()
 { nialptr x = apop();
-#ifdef V4AT
-  int zero = 0;
-  nialptr z = new_create_array(atype,1,0,&zero);
-  store_array(z,0,x);
-  apush(z);
-#else
   apush(Null);
   freeup(x);
-#endif
 }
 
 /* implements the Nial primitive tell.
-   In V6AT the argument is expected to be an integer or a shape. 
+   The argument is expected to be an integer or a shape.
    If it is an integer N the result is the list of integers from 0
    to N-1. If the argument is a shape then the result
    is the array of addresses for that shape arranged in an
    array of the given shape. Otherwise the result is the fault ?shape.
-   In V4AT the argument can be any array. If it is an integer or a shape
-   then the result is as above. If the argument A is a simple array then 
-   the result is tell gage A. Otherwise it is cart EACH tell A.
+ 
 */
 
 void
@@ -1201,48 +1068,21 @@ itell()
   nialptr     x = apop();
   int         kx = kind(x);
 
-  if (!validshape(x)) 
-#ifdef V4AT
-   { if (kind(x)==booltype)
-     { if (atomic(x))
-       { apush(x);
-         ivoid();
-         return;
-       }
-       else
-         goto generalcase;
-     }
-     else 
-     if (atomic(x))
-     { freeup(x);
-       apush(Null);
-       return;
-     }
-     else
-       goto generalcase;
-  }   
-#else
+  if (!validshape(x))
   {
     apush(makefault("?shape"));
     freeup(x);
     return;
   }
-#endif
   if (atomic(x))
   { nialint n;
     n = (kx == inttype ? intval(x) : 0);  /* to distinguish Null case */
-#ifdef V4AT
-    n = (n<0?0:n);
-#endif
     apush(generateints(n));
     set_sorted(top, true);
     freeup(x);
   }
   else 
-  { 
-#ifdef V4AT
-generalcase:
-#endif
+  {
     int_each(itell, x);
     icart();
     set_sorted(top, true);
@@ -1274,10 +1114,8 @@ void
 igrid(void)
 {
   ishape();
-#ifndef V4AT
   if (tally(top)==1)
     ifirst();
-#endif
   itell();
 }
 
@@ -1294,12 +1132,9 @@ igrid(void)
    the axis to omit. Negative integers indicate dropping from the upper end of the axis.
    If the integer is larger than the extent of the axis then the result is empty.
 
-   In V6AT the first argument of take and drop must have tally equal to the valence 
+   The first argument of take and drop must have tally equal to the valence
    of the second argument otherwise a fault is returned. 
-   In V4AT the result is determined by the definition
-             x take y = tell x choose y
-
- */
+  */
 
 void
 b_take()
@@ -1404,15 +1239,6 @@ takedrop(nialptr x, nialptr y, int istake)
               processaxes,
               dim;
 
-#ifdef V4AT
-  if (kind(x) != inttype)
-  { apush(x);
-    itell();
-    apush(y);
-    b_choose();
-    return;
-  }
-#else
   if (kind(x) != inttype && tx > 0) {
     if (istake) {
       apush(makefault("?left argument in take must be integers"));
@@ -1424,7 +1250,6 @@ takedrop(nialptr x, nialptr y, int istake)
     freeup(y);
     return;
   }
-#endif
   if (vy == 0) {
     if (istake) {            /* take on a single is treated as reshape with
                               * abs A on the single */
@@ -1449,15 +1274,7 @@ takedrop(nialptr x, nialptr y, int istake)
 
   if (tx != vy) {
     if (istake) {
-#ifdef V4AT
-      apush(x);
-      itell();
-      apush(y);
-      b_choose();
-      return;
-#else
       apush(makefault("?valence error in take"));
-#endif
     }
     else {
       apush(makefault("?valence error in drop"));
@@ -1542,10 +1359,6 @@ takedrop(nialptr x, nialptr y, int istake)
       }
       else {
         if (!fillused) {
-#ifdef V4AT
-          apush(fetchasarray(y, 0));
-          fillitem = apop();
-#else
           if (ty > 0) {      /* fill with type of first item */
             apush(fetchasarray(y, 0));
             itype();
@@ -1553,7 +1366,6 @@ takedrop(nialptr x, nialptr y, int istake)
           }
           else               /* fill with faults. Container will be atype */
             fillitem = makefault("?fill");
-#endif
           fillused = true;
         }
         if (kind(z) == atype) {
@@ -1672,10 +1484,6 @@ takedrop(nialptr x, nialptr y, int istake)
       }
       else {                 /* do a fill */
         if (!fillused) {
-#ifdef V4AT
-          apush(fetchasarray(y, 0));
-          fillitem = apop();
-#else
           if (ty > 0) {      /* fill with type of first item */
             apush(fetchasarray(y, 0));
             itype();
@@ -1683,7 +1491,6 @@ takedrop(nialptr x, nialptr y, int istake)
           }
           else               /* fill with faults. Container will be atype */
             fillitem = makefault("?fill");
-#endif
           fillused = true;
         }
         if (kind(z) == atype) {
@@ -1963,9 +1770,8 @@ cutorcutall(nialptr x, nialptr y, int cutprim)
    tally of y, x is coerced to have the same tally as y using reshape.  If y is 
    not a list, the result is the same as applying sublist to the list of y.  
    The tally of the result is the sum of x after it has been reshaped, if necessary. 
-   In V6AT the result is a fault if x is not boolean or if x is empty.
-   In V4AT the result is an empty list with prototype the first item of y if
-   x is not boolean or if x is empty.
+   The result is a fault if x is not boolean or if x is empty.
+ 
 */
 
 void
@@ -2008,15 +1814,7 @@ sublist(nialptr x, nialptr y)
               ty;
 
   if (kind(x) != booltype && tally(x) != 0) {
-#ifdef V4AT
-    nialint zero=0;
-    nialptr b = fetchasarray(y,0),
-            z = new_create_array(z,1,0,&zero);
-    store_array(z,0,b);
-    apush(z);
-#else
     apush(makefault("?first arg of sublist not boolean"));
-#endif
     freeup(x);
     freeup(y);
     return;
@@ -2024,7 +1822,6 @@ sublist(nialptr x, nialptr y)
   ty = tally(y);
   if (tally(x) != ty)
   {
-#ifndef V4AT
     if (tally(x) == 0)
     { apush(makefault("?first arg of sublist is empty"));
       freeup(x);
@@ -2032,7 +1829,6 @@ sublist(nialptr x, nialptr y)
       return;
     }
     else
-#endif
     { reshape(createint(ty), x);
       x = apop();
     }
@@ -2063,26 +1859,15 @@ sublist(nialptr x, nialptr y)
     apush(z);
   }
   else
-#ifdef V4AT
-  { nialint zero=0;          /* create empty list with first item of y as prototype */
-    nialptr b = fetchasarray(y,0),
-            z = new_create_array(z,1,0,&zero);
-    store_array(z,0,b);
-    apush(z);
-  }
-#else
     apush(Null);
-#endif
   freeup(x);
   freeup(y);
 }
 
 /* The next 2 routine implement the primitive predicate simple.
-   In V6AT the result is true for all empty arrays and for 
+   The result is true for all empty arrays and for
    nonempty arrays with items that are all atoms.
-   In V4AT the result is true for an empty array with an atomic
-   prototype and for nonempty arrays with items that are all atoms.
-*/
+ */
 
 void
 isimple()
@@ -2111,11 +1896,7 @@ simple(nialptr x)
     return (true);
   t = tally(x);
   if (t == 0)
-#ifdef V4AT
-    t = (t==0?t+1:t);
-#else
     return (true);
-#endif
   i = 0;
   ptrx = pfirstitem(x);      /* safe */
   while (simp && i++ < t) {
@@ -2129,14 +1910,7 @@ simple(nialptr x)
 /* The next set of routines implements the operation pack, which plays a crucial
    role in the definition of the pervasive operations.
 
-   This is an area where V4 differs greatly from V6.
-   V4 has 3 operations
-		flip
-		trim
-		pack
-   where pack is flip trim.
-
-   In V6AT pack interchanges the top two levels of an
+   The operation pack interchanges the top two levels of an
    equishaped array. If the array is not equishaped then it is made
    equishaped if it has conforming items, i.e. all items having more
    than one item are the same shape. In that case, the unitary items
@@ -2149,160 +1923,9 @@ simple(nialptr x)
    If A is not equishaped and does not have conforming items the result
    is fault ?conform.
 
-   In V6AT trim is not defined and flip is defined as pack.
-
-   In V4AT trim is used to convert an non-conformable array to a conformable one.
-   It does this by extending the valence of all the items to the maximum valence
-   and fills them in by using take to select the part of the item that fits with
-   the conforming shape and reshape to extend its valence.
-
-   In V4AT flip interchanges the top two levels and pack is implemented as
-               pack IS flip trim
-
-
+  The operation flip is and alternative name for pack.
 */
 
-
-#ifdef V4AT
-
-void itrim()
-{ nialptr x,fx,it,plan,z,sameshapes;
-  nialint j,i,tp,sit,m,tallyx,vx,v,vi;
-  if (homotype(kind(top)) || atomic(top) || tally(top)==0)
-    return;
-  x = apop();
-  vx = valence(x);
-  tallyx = tally(x);
-
-  sameshapes = true;  /* if all same shape then quit early */
-  fx = fetch_array(x,0);
-  i = 1;
-  while (sameshapes && (i < tallyx))
-  { it = fetch_array(x,i);
-    sameshapes = equalshape(fx,it);
-    i++;
-  }
-  if(sameshapes)
-    { apush(x); return; }
-
-  v = 0;
-  m = 0;  /* find maximum valence and extent */
-  for (i=0;i<tallyx;i++)
-  { it = fetch_array(x,i);
-    if (v<valence(it))
-      v = valence(it);
-    for (j=0;j<valence(it);j++)
-      if (m<pickshape(it,j))
-        m = pickshape(it,j);
-  }
-  if (v==0)
-    { apush(x); return; } /* all items have valence = 0 */
-
-  reshape(createint(v),createint(m));
-  plan = apop();
-  tp = tally(plan);
-
-  for (i=0;i<tallyx;i++)
-  { it = fetch_array(x,i);
-    vi = valence(it);
-    for (j=0;j<vi;j++)
-    { sit = pickshape(it,j);
-      if (fetch_int(plan,v-vi+j)>sit)
-        store_int(plan,v-vi+j,sit);
-    }
-  }
-  apush(plan);   /* t0 protect it in pair below */
-  /* create container */
-  z = new_create_array(atype,vx,0,shpptr(x,vx));
-
-  for(i = 0; i < tallyx; i++)
-     { it = fetch_array(x,i);
-       vi = valence(it);
-       for(j=vi-1; j >= 0; j--)
-          apush(fetchasarray(plan,tp-j-1));
-       mklist(vi);
-       pair(apop(),it);
-       itake();
-       pair(plan,apop());
-       ireshape();
-       it = apop();
-       store_array(z,i,it);
-     }
-  freeup(apop());  /* unprotect and free plan */
-  apush(z);
-  freeup(x);
-}
-
-void
-iflip()
-{ nialptr x, x0, z, it, nit, it1; 
-  nialint tx, vx, i, j, limit, limitf, vf, tfx, *shp,tallyit;
-
-  /* implements flip on assumption that items are equishaped */
-  if (atomic(top)) 
-    return;
-  if (homotype(kind(top))) 
-    { isingle(); return; }
-  x = apop();
-  x0 = fetchasarray(x,0);
-  tx = tally(x);
-  tfx = tally(x0);
-  vx = valence(x);
-  vf = valence(x0);
-  shp = shpptr(x0, vf);
-  prodints(shp, vf, &limitf); /* no check needed on product */
-  limit = (tx==0?1:tx);
-  limitf = (tfx==0?1:tfx);
-  z = new_create_array(atype, vf, 0, shp);  /* Safe: no heap creations
-                                               * between assigning shp and
-                                               * here. */
-  for (i = 0; i < limitf; i++) 
-  { nit = new_create_array(atype, vx, 0, shpptr(x, vx));
-    for (j = 0; j < limit; j++) {
-      it = fetch_array(x, j);
-      tallyit = tally(it);
-      if (tallyit <= 1 || i >= tallyit)
-        it1 = fetchasarray(it, 0);
-      else
-        it1 = fetchasarray(it, i);
-      if (vx == 0 && atomic(it1)) { /* item is to be an atom. Thus freeup
-                                     * the container here before it gets
-                                     * given a possibly temporary item.
-                                     * This is safe to do since the loop
-                                     * only goes around once in this case. */
-        freeup(nit);
-        nit = it1;         /* item is the atom found */
-      }
-      else
-        store_array(nit, j, it1);
-    }
-    if (homotest(nit))
-      nit = implode(nit);
-    store_array(z, i, nit);
-#ifdef USER_BREAK_FLAG
-    checksignal(NC_CS_NORMAL);
-#endif
-  }
-  if (homotest(z))
-    z = implode(z);
-  apush(z);
-  freeup(x);
-}
-
-
-
-void
-ipack()
-{
-  itrim();
-  iflip();
-}
-
-
-#else
-
-
-/* The V6AT version of pack */
 
 void
 ipack()
@@ -2432,7 +2055,6 @@ pack(nialptr x)
   }
 }
 
-#endif  /* end of V6AT alternative for pack */
 
 /* The next set of routines implement the primitive operations 
    seek, find, in and findall.
@@ -3349,11 +2971,6 @@ scull(nialptr a, int diversesw)
   int         k = (t==0 ? atype : booltype);
   nialptr     pattern = new_create_array(k, 1, 0, &t);
 
-#ifdef V4AT
-  if (t==0)
-    { store_array(pattern,0,False_val); }
-  else
-#endif
   if (t>0)
     store_bool(pattern, 0, true);
   switch (kind(a)) {
@@ -3404,7 +3021,7 @@ scull(nialptr a, int diversesw)
    It is used for small arrays. There are three internal routines:
       except, which sorts the arrays to achieve an order N*log N algoritm,
       sexcept, which assumes the arrays are sorted, and
-      oldexcept, which uses the doulbe loop algorithm.
+      oldexcept, which uses the double loop algorithm.
 
    The routine except is described by the Nial code:
 
@@ -3439,19 +3056,14 @@ scull(nialptr a, int diversesw)
  Res := SORT <= Res choose A;
   Res }
 
-   The constant CROSSOVER determines the size of array B that is done
+   The constant CROSSOVER determines the sizes of arrays A and B that are computed
    using the N*log N algorithm. Its value was determined experimentally
-   on a SUN Sparc system for UNIX.
- MAJ: this should be retested for the 64 bit version.
-   The code to always run the N*N algoritm has been retained as ioldexcept
-   so that the crossover value can be retested. 
+   on a 64 bit Intel chip for OSX (in a 2009 era Mac).
 
-   In V6AT if the result is empty then it is the array Null.
-   In V4AT if the result is empty then it is an empty list with
-   prototype the first item of A.
+   If the result is empty then it is the array Null.
 */
 
-#define CROSSOVER 1000
+#define CROSSOVER 5000
 
 
 void
@@ -3478,7 +3090,13 @@ b_except(void)
 #ifdef OLDEXCEPT
 
 /* temporary version to test cross over value */
-
+/* to do the testing 
+   1) add an entry in pkgblder/allprims.nh
+ OLDEXCEPT U oldexcept ioldexcept
+   2) add OLDEXCEPT to the .txt file being used for the build
+   3) rebuild the executable.
+   4) do timing comparisons between except and oldexcept on varying size arrays.
+ */
 
 void
 ioldexcept(void)
@@ -3501,7 +3119,7 @@ ioldexcept(void)
   freeup(z);
 }
 
-#endif
+#endif  /* OLDEXCEPT */
 
 void
 iexcept(void)
@@ -3920,17 +3538,7 @@ sexcept(nialptr a, nialptr b)
   {            /* move result to a shorter container */
     nialptr res;
     if (cnt==0)
-#ifdef V4AT
-    { apush(a);
-      ifirst();
-      ivoid();
-      freeup(z);
-      freeup(b);
-      return;
-    }
-#else
       res = Null;
-#endif
     else
     { res = new_create_array(ka, 1, 0, &cnt);
       copy(res, 0, z, 0, cnt);
@@ -4002,17 +3610,7 @@ oldexcept(nialptr arr, nialptr x)
   {            /* move result to a shorter container */
     nialptr nnz;
     if (clearplace==0)
-#ifdef V4AT
-    { apush(arr);
-      ifirst();
-      ivoid();
-      freeup(nz);
-      freeup(x);
-      return;
-    }
-#else
       nnz = Null;
-#endif
     else
     { nnz = new_create_array(ka, 1, 0, &clearplace);
       copy(nnz, 0, nz, 0, clearplace);
@@ -4136,10 +3734,8 @@ iraise(void)
    The result has shape:   n take shape x.
    The items have shape:   n drop shape x.
    It does the work for raise. It is needed in this form for picture.
-   In V6AT if A is empty and (N take shape A) does not contain zeros
+   If A is empty and (N take shape A) does not contain zeros
    then the items of A are all empty arrays.
-   In V4AT if A is empty and (N take shape A) does not contain zeros
-   then the items of A are all the prototype of A.
 */
 
 nialptr
@@ -4177,32 +3773,16 @@ nial_raise(nialptr x, int n)
       cnt = 1;
       for (i = 0; i < n; i++)
         cnt *= *(sh + i);
-#ifdef V4AT
-      cnt = (cnt==0?1:cnt);
-#endif
-
       sh1 = sh + n;
       n1 = v - n;
       cnt1 = 1;
       for (i = 0; i < n1; i++)
         cnt1 *= *(sh1 + i);
-#ifdef V4AT
-      cnt1 = (cnt1==0?1:cnt1); /* only 1 step in inner loop */
-#endif
-
       z = new_create_array(atype, n, 0, shpptr(x, v));
       k = 0;                 /* counter to walk through x */
       kx = kind(x);
       for (i = 0; i < cnt; i++) 
       { w = new_create_array(kx, n1, 0, shpptr(x, v) + n);
-#ifdef V4AT
-        if (tally(x)==0)
-        { nialint j;
-          for(j = 0; j < cnt1; j++)
-            store_array(w,j,fetch_array(x,0));
-        }
-        else
-#endif
         { copy(w, 0, x, k, cnt1); /* copy cnt1 items */
           k += cnt1;
         }
@@ -4415,13 +3995,7 @@ fuse(nialptr a, nialptr b)
       /* result is empty of new shape */
 
     {
-
-        nialptr z = new_create_array(atype, tally(ns), 0, pfirstint(ns));
-
-#ifdef V4AT
-      nialptr archetype = fetch_array(b,0);
-      store_array(z,0,archetype);
-#endif
+      nialptr z = new_create_array(atype, tally(ns), 0, pfirstint(ns));
       apush(z);
     }
     else {                   /* code to do the actual tranposition quickly */
@@ -4565,15 +4139,6 @@ itranspose(void)
     newshp[0] = c;
     newshp[1] = r;
     z = new_create_array(kind(x), 2, 0, newshp);
-#ifdef V4AT
-    if (tally(z)==0)
-    { nialptr archetype = fetch_array(x,0);
-      store_array(z,0,archetype);
-      apush(z);
-      freeup(x);
-      return;
-    }
-#endif
     switch (kind(x)) {
       case chartype:
           {
@@ -4727,16 +4292,13 @@ void
 imix(void)
 {
   nialptr shp;
-#ifndef V4AT
   nialptr bres;
   int tv;
-#endif
 
   apush(top); /* duplicate top so we can get its shape */
   ishape();
   shp = apop();  /* shape A */
 
-#ifndef V4AT
   if (tally(top)==0)
   { freeup(apop());  /* unprotect and free arg */
     apush(shp);
@@ -4760,7 +4322,6 @@ imix(void)
     buildfault("conform");
     return;
   }
-  #endif
 
   apush(fetchasarray(top,0)); /* first A  */
   ishape();  /* shape first A */

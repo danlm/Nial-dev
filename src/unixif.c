@@ -23,9 +23,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
-#ifdef UNIXSYS
 #include <sys/mman.h>
-#endif
 #include <sys/fcntl.h>
 
 /* STDLIB */
@@ -72,7 +70,7 @@ static double sttime;        /* start time for session */
 static void fpehandler(int signo);
 static void restoresignals(void);
 
-#ifdef OSX
+#ifndef LINUX
 extern int  errno;
 #endif
 
@@ -425,10 +423,8 @@ restoresignals()
 {
   int         i;
 
-#ifdef UNIXSYS 
   for (i = 0; i < NSIG; i++)
     signal(i, SIG_DFL);
-#endif
 }
 
 
@@ -437,12 +433,10 @@ restoresignals()
 void
 controlCcatch(int signo)
 {
-#ifdef UNIXSYS
     signal(SIGINT, controlCcatch);
     if (signo != SIGINT)
         return;
     userbreakrequested = true;
-#endif
 }
 
 /* cheksignal is the routine that checks whether the user has requested
@@ -455,21 +449,16 @@ controlCcatch(int signo)
 void
 checksignal(int code)
 {
-#ifdef UNIXSYS
     if (!nouserinterrupts && userbreakrequested) {
         userbreakrequested = false;
         exit_cover1("User Break", NC_WARNING);
     }
-#endif
 }
 
 void
 initfpsignal()
-{
-  /* to catch floating point exceptions */
-#ifdef UNIXSYS
+{                            /* to catch floating point exceptions */
   signal(SIGFPE, fpehandler);
-#endif
 }
 
 #ifdef FP_EXCEPTION_FLAG

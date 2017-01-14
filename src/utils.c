@@ -167,7 +167,6 @@ arithconvert(nialptr x, int *newk)
    If all the fault values are the same and there are no
    non-numeric items, then use the fault value found, otherwise
    use the stdfault given as the argument.
-   This is the V6AT rule. The old code for V4AT may not be correct.
 */
 
 nialptr
@@ -192,20 +191,7 @@ testfaults(nialptr x, nialptr stdfault)
     return (stdfault);       /* used in "and" and "or" in cases like "and o -12" */
 
   z = xi;
-#ifdef V4AT
-  if (stdfault==Logical)
-  { /* Logical faults are different in V4 */
-    i = 0;  /* scan all the items */
-    /* find other faults and compare */
-    while (i < t) {
-      xi = fetch_array(x, i++);
-      if ((kind(xi) == faulttype && z != xi) || kind(xi) != faulttype)
-         /* result is stdfault if fault value changes or other type */
-        return (stdfault);
-    }	
-  }
-  else
-#endif
+
 
   /* find other faults and compare */
   { while (i < t) {
