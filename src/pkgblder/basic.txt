@@ -1,0 +1,12 @@
+V7BASIC
+
+# Standard Features 
+CORE coredefs.ndf
+SYSTEM -
+V6AT -
+COMMAND -
+TIMEHOOK -
+DIRECTIO -
+PROFILE -
+USEROPS -
+

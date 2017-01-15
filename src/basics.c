@@ -253,23 +253,6 @@ iprofiletree,
 iprofiletable,
 iGetEnv,
 iGetCommandLine,
-iht_create,
-iht_set,
-iht_get,
-iis_ht_table,
-iht_setmeta,
-iht_getmeta,
-iht_delete,
-iht_getkeys,
-imkdir,
-irmdir,
-irename,
-irun_child,
-ichild_read,
-ichild_write,
-ichild_close,
-ichild_running,
-ichild_count,
 };
 
 void (*binapplytab[])() = {
@@ -550,21 +533,4 @@ init_primname("PROFILETREE",'E');
 init_primname("PROFILETABLE",'E');
 init_primname("GETENV",'U');
 init_primname("GETCOMMANDLINE",'E');
-init_primname("_TCREATE",'U');
-init_primname("_TSET",'U');
-init_primname("_TGET",'U');
-init_primname("ISTABLE",'U');
-init_primname("TSETM",'U');
-init_primname("TGETM",'U');
-init_primname("_TDEL",'U');
-init_primname("_GETKEYS",'U');
-init_primname("MKDIR",'U');
-init_primname("RMDIR",'U');
-init_primname("RENAME",'U');
-init_primname("PROC_OPEN",'U');
-init_primname("PROC_READ",'U');
-init_primname("PROC_WRITE",'U');
-init_primname("PROC_CLOSE",'U');
-init_primname("PROC_RUNNING",'U');
-init_primname("PROC_COUNT",'U');
 }

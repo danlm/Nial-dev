@@ -14,6 +14,3 @@
 #define DIRECTIO
 #define PROFILE
 #define USEROPS
-#define NFILES
-#define UHTABLE
-#define WINPROCESS
