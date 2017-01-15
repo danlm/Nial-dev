@@ -9,6 +9,7 @@
 # names of data sets to which it is to be applied.
 
   Quiet := l;
+  settrigger o;
 
 loaddefs "datagen
 
@@ -20,7 +21,9 @@ spacelost := 0;
 
    loaddefs "testid
 
-   loaddefs "ids  
+   loaddefs "ids
+
+   loaddefs "largeintids 
 
    loaddefs "idtests l
 

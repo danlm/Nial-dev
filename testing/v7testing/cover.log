@@ -1,4 +1,4 @@
-934377 934318 5 1000000 10000 10000 1000
+903948 876859 24 1000000 10000 10000 1000
 applying abs to atoms
 applying abs to allatompairs
 applying abs to empties
@@ -2100,8 +2100,8 @@ applying gradeup to smbits
 applying gradeup to bits
 applying gradeup to pairs
 done from Start
-935139 934407 14 1000000 10000 10000 1000
-934702 934407 13 1000000 10000 10000 1000
+904706 876859 34 1000000 10000 10000 1000
+904261 876859 24 1000000 10000 10000 1000
 applying allin to allatompairs
 applying allin to pairs
 applying allin to funnypairs
@@ -2247,8 +2247,8 @@ applying lower to allatompairs
 applying lower to pairs
 applying lower to funnypairs
 done from Start
-935147 934407 15 1000000 10000 10000 1000
-935087 934407 13 1000000 10000 10000 1000
+904718 876859 36 1000000 10000 10000 1000
+904646 876859 25 1000000 10000 10000 1000
 applying diagram to atoms
 applying diagram to allatompairs
 applying diagram to empties
@@ -2400,5 +2400,5 @@ applying sketch to smbits
 applying sketch to bits
 applying sketch to pairs
 done from Start
-935146 934407 14 1000000 10000 10000 1000
+904717 876859 31 1000000 10000 10000 1000
 total space lost: 0

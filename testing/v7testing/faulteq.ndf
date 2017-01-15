@@ -1,6 +1,6 @@
 # an equality test that considers its arguments equal 
   if they are equal within roundof error, if one of them is a fault, or they
-  are of the same shape and their items are equal within ithe
+  are of the same shape and their items are equal within the
   same constraints.
 
 faulteq IS OP A B {

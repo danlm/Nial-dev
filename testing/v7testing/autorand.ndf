@@ -14,17 +14,8 @@ Tries := 0;
  set"log; write status; set "nolog;
 
 
-%seed .5;
-%Limit := 2000;
-
-seed .9362837;
-%Limit := 5000;
-
-%seed .314159;
-%Limit := 500;
-
 %seed .31323334;
-Limit := 5000;
+Limit := 50000;
 
  set"log; write status; set "nolog;
 
