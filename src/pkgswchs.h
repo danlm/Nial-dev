@@ -12,6 +12,8 @@
 #define COMMAND
 #define TIMEHOOK
 #define DIRECTIO
-#define REGEXP
 #define PROFILE
 #define USEROPS
+#define NFILES
+#define UHTABLE
+#define WINPROCESS

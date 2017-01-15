@@ -757,16 +757,19 @@ print_syntax()
 static nialint get_memsize(char *mstr) {
     char msz[128];
     int mpl = strlen(mstr);
-    nialint mult = 1024;      /* work with default of kilobytes */
-    char term = mstr[mpl-1]; /* get Last char to see if it is M or K */
+    nialint mult = 1;      /* work with default of words */
+    char term = mstr[mpl-1]; /* get Last char to see if it is G or M or K */
     
     strcpy(msz, mstr);
-    if (term == 'M' || term == 'm') { /* megabytes */
-        msz[mpl-1] = '\000';
-        mult *= 1024;
-    } else if (term == 'G' || term == 'g') { /* Gigabytes */
-        mult *= 1024*1024;
-        msz[mpl-1] = '\000';
+    if (term == 'K' || term == 'k') { /* kilowords */
+      msz[mpl-1] = '\000';
+      mult = 1024;
+    } else if (term == 'M' || term == 'm') { /* megawords */
+      msz[mpl-1] = '\000';
+      mult = 1024*1024;
+    } else if (term == 'G' || term == 'g') { /* Gigawords */
+      mult = 1024*1024*1024;
+      msz[mpl-1] = '\000';
     }
     
     /* compute size and return it */
