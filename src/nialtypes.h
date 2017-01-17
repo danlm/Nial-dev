@@ -31,27 +31,27 @@
 
 #ifdef INTS32
 
-typedef int nialword;                  /* memory organised as array of nial words */
-typedef int nialint;                  /* data holding a signed integer */
-typedef unsigned int unialint;        /* data holding an unsigned nial int */
-typedef int nialptr;                  /* index of an entry in the workspace */
-typedef short nialvalence;            /* storage for a valence value */
+typedef int32_t   nialword;                 /* memory organised as array of nial words */
+typedef int32_t   nialint;                  /* data holding a signed integer */
+typedef uint32_t  unialint;                 /* data holding an unsigned nial int */
+typedef int32_t   nialptr;                  /* index of an entry in the workspace */
+typedef short     nialvalence;              /* storage for a valence value */
 
 #elif defined(INTS64)
 
 #ifdef UNIXSYS
-typedef long nialword;              /* memory organised as array of nial words */
-typedef long nialint;               /* data holding a signed integer */
-typedef unsigned long unialint;     /* data holding an unsigned nial int */
-typedef long nialptr;               /* index of an entry in the workspace */
-typedef int nialvalence;            /* storage for a valence value */
+typedef int64_t   nialword;              /* memory organised as array of nial words */
+typedef int64_t   nialint;               /* data holding a signed integer */
+typedef uint64_t  unialint;              /* data holding an unsigned nial int */
+typedef int64_t   nialptr;               /* index of an entry in the workspace */
+typedef int       nialvalence;           /* storage for a valence value */
 #endif
 
 #ifdef WINNIAL
-typedef long long nialword;         /* memory organised as array of nial words */
-typedef long long nialint;          /* data holding a signed integer */
-typedef unsigned long long unialint; /* data holding an unsigned nial int */
-typedef long long nialptr;          /* index of an entry in the workspace */
+typedef int64_t nialword;         /* memory organised as array of nial words */
+typedef int64_t nialint;          /* data holding a signed integer */
+typedef uint64_t unialint; /* data holding an unsigned nial int */
+typedef uint64_t nialptr;          /* index of an entry in the workspace */
 typedef int nialvalence;            /* storage for a valence value */
 #endif
 

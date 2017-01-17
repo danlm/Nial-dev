@@ -34,7 +34,7 @@
 
 /* bitsize for nial representations */
 
-#define sizeofnialint sizeof(int)
+#define sizeofnialint  sizeof(nialint)
 #define sizeofnialreal sizeof(double)
 #define sizeofnialchar sizeof(char)
 
@@ -54,16 +54,15 @@
 #elif defined(INTS64)
 
 #ifdef UNIXSYS
-#define NIALONEBIT (1L)
-#define ALLBITSON (-1)
-#define LARGEINT 9223372036854775807
-#define SMALLINT (-9223372036854775807 - 1)
+#define NIALONEBIT (1LL)
+#define ALLBITSON (-1LL)
+#define LARGEINT 9223372036854775807LL
+#define SMALLINT (-9223372036854775807LL - 1)
 #ifdef CAUTIOUS_FLOOR
 #define LARGEINT_Boundary 9007199254740992.0
 #define SMALLINT_Boundary -9007199254740992.0
 #else
 #define LARGEINT_Boundary 9223372036854775807.0
-
 #define SMALLINT_Boundary (-9223372036854775807.0 - 1)
 #endif
 #endif
@@ -73,8 +72,13 @@
 #define ALLBITSON (-1LL)
 #define LARGEINT 9223372036854775807LL
 #define SMALLINT (-9223372036854775807LL - 1)
+#ifdef CAUTIOUS_FLOOR
 #define LARGEINT_Boundary 9007199254740992.0
 #define SMALLINT_Boundary -9007199254740992.0
+#else
+#define LARGEINT_Boundary 9223372036854775807.0
+#define SMALLINT_Boundary (-9223372036854775807.0 - 1)
+#endif
 #endif
 
 /* Size of nial word in bytes */
@@ -98,10 +102,10 @@
 /* bitsize for nial representations */
 
 #ifdef UNIXSYS
-#define sizeofnialint sizeof(long)
+#define sizeofnialint sizeof(nialint)
 #endif
 #ifdef WINNIAL
-#define sizeofnialint sizeof(long long)
+#define sizeofnialint sizeof(nialint)
 #endif
 
 #define sizeofnialreal sizeof(double)
