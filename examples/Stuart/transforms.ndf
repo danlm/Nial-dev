@@ -1,0 +1,209 @@
+# LANGLET'S "PARITY LOGIC"
+
+
+# OPERATIONS IN THE BOOLEAN FIELD
+
+
+# xor is a primitive in new Nial
+
+# xor is op p q { ( p or q ) and not ( p and q ) }
+
+
+# boolean scalar integral of boolean vector x
+
+bsi is op x { reduce xor x }
+
+
+# boolean inner product of boolean matrices x and y
+
+bmp is op x y { x inner[ bsi , and ] y }
+
+
+# boolean vector integral of boolean vector x (inverse of bvd; also does gray-to-binary conversion)
+
+# BVI is optimized in new Nial.
+
+# BVI is op x { accumulate xor x }
+
+BVI is op x { acc_xor x }
+
+
+
+# boolean vector differential of boolean vector (inverse of bvi; also does binary-to-gray conversion)
+
+bvd is op S { 1 take S link( 1 drop S xor( -1 drop S ) ) }
+
+
+# raise boolean matrix B to the N'th power
+
+bpp is op B N { reduce ( inner [ reduce xor , and ] ) ( N reshape [ B ] ) }
+
+
+# Majority. Returns l if l's outnumber o's; o otherwise
+
+maj is op x { sum abs x > sum abs not x }
+
+
+
+# MATRIX REFLECTIONS
+
+
+# Reflect a matrix around its vertical axis
+
+revv is op x { byrows reverse x }
+
+
+# Reflect a matrix around its horizontal axis
+
+revh is op x { bycols reverse x }
+
+
+# Reflect a matrix around its main antidiagonal
+
+revd is op x { revh revv x }
+
+
+
+# THE PARITON AND THE FOUR BASIC LANGLET MATRICES
+
+
+# pariton of boolean vector x
+
+par IS OPERATION S { [ tally S , tally S ] reshape content ( 1 drop ( tally S fold ( op A ( A append bvi last A ) ) ) ) [ S ] }
+
+
+# The four basic matrices
+
+G is op n { par( n take lo ) }
+
+
+Gv is op n { revv G n }
+
+
+Gh is op n { revh G n }
+
+
+Gd is op n { revd G n }
+
+
+
+# LANGLET TRANSFORMS
+
+
+# Original Helical Transform of a sequence
+
+HEL is op S { S bmp Gv tally S }
+
+
+# Original Cognitive Transform of a sequence
+
+COG is op S { S bmp Gh tally S }
+  
+
+# fanion of boolean vector S
+
+fanion is op S { tally S - 1 fold ( op A ( A append xor ( 1 -1 eachleft drop last A ) ) ) [ S ] }
+
+
+# helical transform of boolean vector S
+
+fanhel is op S { each first fanion S }
+
+
+# cognitive transform of boolean vector S
+
+fancog is op S { reverse each last fanion S }
+
+
+# two-dimensional Helical transform of boolean matrix m
+
+fanhel2d is op m { bycols fanhel byrows fanhel m }
+
+
+# two-dimensional Cognitive transform of boolean matrix m
+
+fancog2d is op m { bycols fancog byrows fancog m }
+
+
+# Helical and Cognitive transforms that do not build the fanion.
+
+fasthel is op S {
+   r := first S ;
+   S1 := 1 drop S ;
+   S2 := -1 drop S ;
+   for i with tell ( tally S - 1 ) do
+      S := S1 xor S2 ;
+      r := r link ( first S ) ;
+      S1 := 1 drop S ;
+      S2 := -1 drop S ;
+   endfor ;
+   r
+}
+
+
+fastcog is op S {
+   r := first S ;
+   S1 := 1 drop S ;
+   S2 := -1 drop S ;
+   for i with tell ( tally S - 1 ) do
+      S := S1 xor S2 ;
+      r := r link last S ;
+      S1 := 1 drop S ;
+      S2 := -1 drop S ;
+   endfor ;
+   reverse r
+}
+
+
+# Langlet's divide-and-conquer algorithms for the Helical and Cognitive transforms.
+# These require that the length of the vector argument be a power of 2.
+
+rhalf is op S { floor ( tally S / 2 ) takeright S }
+
+
+lhalf is op S { floor (tally S / 2 ) take S }
+
+
+Lhel is op S {
+   IF tally S = 1 THEN
+      S
+   ELSE
+      Lhel lhalf S link Lhel ( lhalf S xor rhalf S )
+   ENDIF
+}
+
+
+Lcog is op S {
+   IF tally S = 1 THEN
+      S
+   ELSE
+      Lcog (rhalf S xor lhalf S) link Lcog rhalf S
+   ENDIF
+}
+
+
+# fast two-dimensional Helical transform of square boolean matrix whose side is a power of 2
+
+Lhel2d is op m { bycols Lhel byrows Lhel m }
+
+
+# fast two-dimensional Cognitive transform of square boolean matrix whose side is a power of 2
+
+Lcog2d is op m { bycols Lcog byrows Lcog m }
+
+
+
+# RANDOM BOOLEAN VECTORS AND MATRICES
+
+
+# length-N random boolean vector, with the number of 1's approximately P*N, 0<p<1
+
+randv is op N P { list random N < P }
+
+
+# RxC random boolean matrix, with the number of 1's approximately P*R*C, 0<p<1
+
+randm is op R C P { [ R , C ] reshape ( R * C randv P ) }
+
+
+

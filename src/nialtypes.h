@@ -37,6 +37,8 @@ typedef uint32_t  unialint;                 /* data holding an unsigned nial int
 typedef int32_t   nialptr;                  /* index of an entry in the workspace */
 typedef short     nialvalence;              /* storage for a valence value */
 
+#define nialabs(x) abs(x)
+
 #elif defined(INTS64)
 
 #ifdef UNIXSYS
@@ -45,6 +47,9 @@ typedef int64_t   nialint;               /* data holding a signed integer */
 typedef uint64_t  unialint;              /* data holding an unsigned nial int */
 typedef int64_t   nialptr;               /* index of an entry in the workspace */
 typedef int       nialvalence;           /* storage for a valence value */
+
+#define nialabs(x) llabs(x)
+
 #endif
 
 #ifdef WINNIAL
@@ -53,6 +58,9 @@ typedef int64_t nialint;          /* data holding a signed integer */
 typedef uint64_t unialint; /* data holding an unsigned nial int */
 typedef uint64_t nialptr;          /* index of an entry in the workspace */
 typedef int nialvalence;            /* storage for a valence value */
+
+#define nialabs(x) llabs(x)
+
 #endif
 
 

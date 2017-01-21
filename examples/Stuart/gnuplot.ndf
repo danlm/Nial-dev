@@ -1,0 +1,111 @@
+# GNUPLOT INTERFACE
+#
+# These demos illustrate how to create simple 2D and 3D plots with gnuplot from within Nial.
+#
+# demo2d calculates its own data, plots it, and saves the resulting plot as a .png file.
+#
+# Example, 100 data points:
+#
+#          demo2d 100
+#
+# demo3d illustrates how to use the gnuplot command to create a surface plot from a datafile.
+# (This demo creates its own datafile).
+#
+# Example, 100 x 100 grid:
+#
+#          demo3d 100 100
+#
+# These demos assume that the path to gnuplot has been added to the PATH; otherwise,
+# assign the full path to gnuplot_exe:
+
+gnuplot_exe := 'gnuplot' ;
+
+
+proc_writeln is op p s { proc_write p ( s link char 10 ) }
+
+
+gnuplot_open is op path { proc_open link [ path , ' -persist' ] }
+
+
+_GNU := gnuplot_open gnuplot_exe ;
+
+
+# Issue any gnuplot command. Argument s is a single-quoted string, as shown in the gnuplot manual.
+
+gnuplot is op s { proc_writeln _GNU s }
+
+
+
+# PLOTTING OPS
+
+
+# Create a vector with N equal intervals between beginning value B and ending value E.
+
+range IS op B E N { B + ( ( E - B ) / N * ( tell ( N + 1 ) ) ) }
+
+
+# Format vectors for ordinary X-Y plot
+
+fmt2D is op x y { 1 catenate ( post x ) ( post y ) }
+
+
+# Format grid data for surface plot
+
+fmt3D is op x y z {
+   y := ( 0 link y ) ;
+   y := 1 ( tally y ) reshape y ;
+   0 catenate y ( 1 catenate ( post x ) z )
+}
+
+
+# Write the formatted data out to file 'Filename'
+
+writedat is op coords Filename {
+   data := picture coords ;
+   Fd := open Filename "w ;
+   writefile Fd data ;
+   close Fd ;
+}
+
+
+# Simple plot from x and y vectors (must be of the same length)
+
+plot is op x y {
+   coords := fmt2D x y ;
+   writedat coords '_temp.dat' ;
+   proc_writeln _GNU 'plot "_temp.dat"' ;
+}
+
+
+
+# DEMOS
+
+
+demo2d is op n {
+   gnuplot 'set title "DEMONSTRATION PLOT"' ;
+   gnuplot 'set xlabel "time"' ;
+   gnuplot 'set ylabel "amplitude"' ;
+   gnuplot 'set style data lines' ;
+   x := tell n / n ;
+   y := sin ( 17 * pi * x ) + ( 0.3 * sin ( 23 * pi * x ) ) ;
+   plot x y ;
+   gnuplot 'set terminal pngcairo' ;
+   gnuplot 'set output "DEMO2D_SAVE.png"' ;
+   gnuplot 'replot' ;
+   gnuplot 'set terminal wxt' ;
+   gnuplot 'set output' ; 
+}
+
+
+demo3d is op nx ny {
+   gnuplot 'set title "DEMONSTRATION SURFACE PLOT"' ;
+   gnuplot 'set xlabel "cosine squared"' ;
+   gnuplot 'set ylabel "sine squared"' ;
+   gnuplot 'set style data lines' ;
+   x := tell nx / nx ;
+   y := tell ny / ny ;
+   z := ( sin ( 4 * pi * x ) power 2 ) outer + ( cos( 3 * pi * y ) power 2 ) ;
+   mat := fmt3d x y z ;
+   writedat mat "DEMO3D.dat ;
+   gnuplot 'splot "DEMO3D.dat" nonuniform matrix u 1:2:3 w l' ;
+}

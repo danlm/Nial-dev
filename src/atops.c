@@ -1309,11 +1309,11 @@ takedrop(nialptr x, nialptr y, int istake)
       }
       else {
 #ifdef INTS32
-          start = ty - abs(xval); /* can be < 0 */
-          length = abs(xval);
+          start = ty - nialabs(xval); /* can be < 0 */
+          length = nialabs(xval);
 #elif INTS64
-          start = ty - labs(xval); /* can be < 0 */
-          length = labs(xval);
+          start = ty - nialabs(xval); /* can be < 0 */
+          length = nialabs(xval);
 #else
 #error precision not defined
 #endif
@@ -1327,9 +1327,9 @@ takedrop(nialptr x, nialptr y, int istake)
       else {
         start = 0;
 #ifdef INTS32
-        length = (ty >= abs(xval) ? ty - abs(xval) : 0);
+        length = (ty >= nialabs(xval) ? ty - nialabs(xval) : 0);
 #elif INTS64
-        length = (ty >= labs(xval) ? ty - labs(xval) : 0);
+        length = (ty >= nialabs(xval) ? ty - nialabs(xval) : 0);
 #else
 #error precision not defined
 #endif
@@ -1393,11 +1393,11 @@ takedrop(nialptr x, nialptr y, int istake)
         }
         else {
 #ifdef INTS32
-          store_int(starts, i, shi - abs(xi));  /* can be < 0 */
-          store_int(lengths, i, abs(xi));
+          store_int(starts, i, shi - nialabs(xi));  /* can be < 0 */
+          store_int(lengths, i, nialabs(xi));
 #elif INTS64
-          store_int(starts, i, shi - labs(xi));  /* can be < 0 */
-          store_int(lengths, i, labs(xi));
+          store_int(starts, i, shi - nialabs(xi));  /* can be < 0 */
+          store_int(lengths, i, nialabs(xi));
 #else
 #error precision not defined
 #endif
@@ -1411,9 +1411,9 @@ takedrop(nialptr x, nialptr y, int istake)
         else {
           store_int(starts, i, 0);
 #ifdef INTS32
-          store_int(lengths, i, (shi >= abs(xi) ? shi - abs(xi) : 0));
+          store_int(lengths, i, (shi >= nialabs(xi) ? shi - nialabs(xi) : 0));
 #elif INTS64
-          store_int(lengths, i, (shi >= labs(xi) ? shi - labs(xi) : 0));
+          store_int(lengths, i, (shi >= nialabs(xi) ? shi - nialabs(xi) : 0));
 #else
 #error precision not defined
 #endif

@@ -1,0 +1,577 @@
+# LANGLET'S "PARITY LOGIC"
+
+# This file contains all the ops needed to experiment with Gérard Langlet's
+# "parity logic." The four demos show how Langlet's transforms can be used to
+# extract information from noisy backgrounds.
+#
+# apple_test: fast detection of an embedded picture in an "easy" image
+#
+#             apple_test 'hel'
+#             apple_test 'cog'
+#
+# peppers_test: not-so-fast detection of an embedded picture in a "difficult" image
+#
+#             peppers_test 0
+#
+# forensic_test: Lifting a fingerprint from a fabric background
+#
+#             forensic_test 0
+#
+# steganography_test: Extracting a handwritten message from a security envelope pattern 
+#
+#             steganography_test 0
+#
+# For the theory and applications of parity logic see:
+#
+# [1] Gérard Langlet. Towards the Ultimate APL-TOE. ACM SIGAPL Quote Quad, 23:1, July 1992.
+# [2] Stuart Smith. Texture analysis a la Langlet. www.cs.uml.edu/~stu.
+# [3] Stuart Smith. Lifting a fingerprint present as a stain in or on fabric. www.cs.uml.edu/~stu.
+# [4] Stuart Smith. Hiding a message in plain sight. www.cs.uml.edu/~stu.
+# [5] Michael Zaus. Crisp and Soft Computing with Hypercubical Calculus: New Approaches to Modeling
+# in Cognitive Science and Technology with Parity Logic, Fuzzy Logic, and Evolutionary Computing:
+# Volume 27 of Studies in Fuzziness and Soft Computing. Physica-Verlag HD, 1999.
+#
+# CONTENTS
+#   1. DATA CONVERSIONS
+#   2. OPERATIONS IN THE BOOLEAN FIELD
+#   3. MATRIX ROTATIONS AND REFLECTIONS
+#   4. THE PARITON AND THE FOUR BASIC LANGLET MATRICES
+#   5. LANGLET TRANSFORMS
+#   6. OPS BASED ON THE TRANSFORMS
+#   7. RANDOM BOOLEAN VECTORS AND MATRICES
+#   8. DEMONSTRATIONS
+
+
+loaddefs "display
+
+
+# 1. DATA CONVERSIONS
+
+
+# Base-2 log of x
+
+lg is op x { ln x / ln 2.0 }
+
+
+# Binary-to-decimal conversion
+
+decimal is INNER [ + , * ] [ 2 power tell tally , reverse ]
+
+
+# Decimal-to-binary conversion
+
+binary is op x n { reverse ( 1 match ( ( x quotient ( 2 power tell n ) ) mod 2 ) ) }
+
+
+# Binary-to-hex conversion
+
+hex is op b {
+   chars := '0123456789abcdef' ;
+   b := rows ( [ tally b quotient 4 , 4 ] reshape b ) ;
+   i := each decimal b ;
+   chars#i
+}
+
+
+# Character representation of boolean matrix
+
+mdisplay is op t {
+   ch := ' *' ;
+   i := abs t ;
+   ch # i
+}
+
+
+
+# 2. OPERATIONS IN THE BOOLEAN FIELD
+
+
+# xor is a primitive in new Nial
+
+# xor is op p q { ( p or q ) and not ( p and q ) }
+
+
+# boolean scalar integral of boolean vector x
+
+bsi is op x { reduce xor x }
+
+
+# boolean inner product of boolean matrices x and y
+
+bmp is op x y { x inner[ bsi , and ] y }
+
+
+# boolean vector integral of boolean vector x (inverse of bvd; also does gray-to-binary conversion)
+
+# BVI is optimized in new Nial.
+
+# BVI is op x { accumulate xor x }
+
+BVI is op x { acc_xor x }
+
+
+
+# boolean vector differential of boolean vector (inverse of bvi; also does binary-to-gray conversion)
+
+bvd is op S { 1 take S link( 1 drop S xor( -1 drop S ) ) }
+
+
+# raise boolean matrix B to the N'th power
+
+bpp is op B N { reduce ( inner [ reduce xor , and ] ) ( N reshape [ B ] ) }
+
+
+# Majority. Returns l if l's outnumber o's; o otherwise
+
+maj is op x { sum abs x > sum abs not x }
+
+
+
+# 3. MATRIX ROTATIONS
+
+
+# Rotate matrix n positions down
+
+rotd is op m n {
+   t gets opp n ;
+   bycols t rotate m
+}
+
+
+# Rotate matrix n positions right
+
+rotr is op m n {
+   t gets opp n ;
+   byrows t rotate m
+}
+
+
+# Rotate matrix n positions up
+
+rotu is op m n { bycols n rotate m }
+
+
+# Rotate matrix n positions left
+
+rotl is op m n { byrows n rotate m }
+
+
+# Reflect a matrix around its vertical axis
+
+revv is op x { byrows reverse x }
+
+
+# Reflect a matrix around its horizontal axis
+
+revh is op x { bycols reverse x }
+
+
+# Reflect a matrix around its main antidiagonal
+
+revd is op x { revh revv x }
+
+
+
+# 4. THE PARITON AND THE FOUR BASIC LANGLET MATRICES
+
+
+# pariton of boolean vector x
+
+par IS OPERATION S { [ tally S , tally S ] reshape content ( 1 drop ( tally S fold ( op A ( A append bvi last A ) ) ) ) [ S ] }
+
+
+# The four basic matrices
+
+G is op n { par( n take lo ) }
+
+
+Gv is op n { revv G n }
+
+
+Gh is op n { revh G n }
+
+
+Gd is op n { revd G n }
+
+
+# Separate a random matrix into a pariton and a matrix that represents superposed noise.
+# This is a brute-force algorithm: do not use for matrices greater than 16 x 16.
+
+sep is op x {
+   n := first shape x ;
+   diff := n * n ;
+   for i with -1 drop count( 2 power n ) do
+      p := par ( i binary n ) ;
+      res := x xor p ;
+      if sum res < diff then
+         diff := sum res ;
+         saveres := res ;
+         savepar := p ;
+      endif ; 
+   endfor;
+   [ savepar , saveres ]
+}
+
+
+
+# 5. LANGLET TRANSFORMS
+
+
+# fanion of boolean vector S
+
+fanion is op S { tally S - 1 fold ( op A ( A append xor ( 1 -1 eachleft drop last A ) ) ) [ S ] }
+
+
+# Display a fanion in triangular form
+
+fandisp is op f {
+   bits :=`o`l ;
+   n := tally f ;
+   filln := 0 ;
+   for i with tell n do
+      x := abs f@i ;
+      y := bits#x ;
+      z := tally x reshape ` ; 
+      if i = 0 then
+         write content (y flip z) ;
+      else
+         filln := filln + 1 ;
+         fill := filln take ` ;
+         write (fill link content(y flip z)) ;
+      endif ;
+   endfor ;
+}
+
+
+# helical transform of boolean vector S
+
+fanhel is op S { each first fanion S }
+
+
+# cognitive transform of boolean vector S
+
+fancog is op S { reverse each last fanion S }
+
+
+# two-dimensional Helical transform of boolean matrix m
+
+fanhel2d is op m { bycols fanhel byrows fanhel m }
+
+
+# two-dimensional Cognitive transform of boolean matrix m
+
+fancog2d is op m { bycols fancog byrows fancog m }
+
+
+# Helical and Cognitive transforms that do not build the fanion.
+
+fasthel is op S {
+   r := first S ;
+   S1 := 1 drop S ;
+   S2 := -1 drop S ;
+   for i with tell ( tally S - 1 ) do
+      S := S1 xor S2 ;
+      r := r link ( first S ) ;
+      S1 := 1 drop S ;
+      S2 := -1 drop S ;
+   endfor ;
+   r
+}
+
+
+fastcog is op S {
+   r := first S ;
+   S1 := 1 drop S ;
+   S2 := -1 drop S ;
+   for i with tell ( tally S - 1 ) do
+      S := S1 xor S2 ;
+      r := r link last S ;
+      S1 := 1 drop S ;
+      S2 := -1 drop S ;
+   endfor ;
+   reverse r
+}
+
+
+# Langlet's divide-and-conquer algorithms for the Helical and Cognitive transforms.
+# These require that the length of the vector argument be a power of 2.
+
+rhalf is op S { floor ( tally S / 2 ) takeright S }
+
+
+lhalf is op S { floor (tally S / 2 ) take S }
+
+
+Lhel is op S {
+   IF tally S = 1 THEN
+      S
+   ELSE
+      Lhel lhalf S link Lhel ( lhalf S xor rhalf S )
+   ENDIF
+}
+
+
+Lcog is op S {
+   IF tally S = 1 THEN
+      S
+   ELSE
+      Lcog (rhalf S xor lhalf S) link Lcog rhalf S
+   ENDIF
+}
+
+
+# fast two-dimensional Helical transform of square boolean matrix whose side is a power of 2
+
+Lhel2d is op m { bycols Lhel byrows Lhel m }
+
+
+# fast two-dimensional Cognitive transform of square boolean matrix whose side is a power of 2
+
+Lcog2d is op m { bycols Lcog byrows Lcog m }
+
+
+
+# 6. OPS BASED ON THE TRANSFORMS
+
+
+# vector "autocorrelation"
+
+correl is op y {
+   s:=shape y ;
+   z:=null ;
+   shf:=y ;
+   n:=floor(s/2) ;
+   FOR i WITH count n DO
+      shf:=-1 rotate shf ;
+      z:=z link reduce + (shf match y)
+   ENDFOR ;
+   (max z) find z + 1 }
+
+
+# 2D "autocorrelation"
+
+shad is op y {
+   s:=last shape y ;
+   z:=null ;
+   shf:=y ;
+   n:=floor (s/2) ;
+   FOR i WITH tell n DO
+      shf:=rotr shf 1 ;
+      z:=z link reduce + (shf match y ) ;
+   ENDFOR ;
+   z }
+
+
+correl2d is op y tol {
+   ht:=shad y ;
+   hmax:=floor(tol*max ht) ;
+   h:=ht gte hmax sublist count shape ht ;
+   h:=first (content(h gte 4) sublist h) ;
+   vt:=shad transpose y ;
+   vmax:=floor(tol*max vt) ;
+   v:=vt gte vmax sublist count shape vt ;
+   v:=first (content(v gte 4) sublist v) ;
+   content (v h)
+}
+
+
+# Find the tile used to construct bitmap x. "fn" is either 'hel' or 'cog'.
+
+texfind is op x fn {
+   dim:=correl2d x 0.9 ;
+   r:=first dim ;
+   c:=second dim ;
+   IF fn='hel' THEN
+      y:=fanhel2d x ;
+      z:=y|[tell r,tell c] ;
+      fanhel2d z
+   ELSEIF fn='cog' THEN
+      dimx:=shape x ;
+      y:=fancog2d x ;
+      z:=y|[reverse (first dimx - tell r - 1),reverse(second dimx - tell c - 1)] ;
+      fancog2d z
+   ELSE
+      'bad fn'
+   ENDIF
+}
+
+
+# Create an RxC tiling, using matrix x as the tile
+
+tile is op x R C {
+  z:= x ;
+  FOR i WITH tell (C - 1) DO
+     z:=1 catenate z x ;
+  ENDFOR ;
+  y:=z ;
+  FOR i WITH tell (R - 1) DO
+     z:=0 catenate z y ; 
+  ENDFOR;
+  z
+}
+
+
+# Detect a line drawing buried in bitmap x. "fn" is either 'hel' or 'cog'.
+
+texdetect is op x fn {
+   pat:=texfind x fn ;
+   dimx:=shape x ;
+   dimp:=shape pat;
+   R:=floor(first dimx/first dimp) ;
+   C:=floor(second dimx/second dimp) ;
+   bgr:=tile pat R C ;
+   bgr xor x
+}
+
+
+# Detect a line drawing buried in bitmap x using a brute-force method.
+
+cells is op x {
+   dimx:=shape x ;
+   dims:=correl2d x 0.9 ;
+   rs:=first dims ;
+   cs:=second dims ;
+   R:=floor(first dimx/rs) ;
+   C:=floor(second dimx/cs) ;
+   res:=null ;
+   FOR i WITH tell R DO
+      FOR j WITH tell C DO
+         cell:=rs cs take x ;
+         res:=res append [cell] ;
+         x:=rotl x cs ;
+      ENDFOR ;
+      x:=rotu x rs ;
+   ENDFOR ;
+   res
+}
+
+
+testall is op x {
+   dimx:=shape x ;
+   cell:=cells x ;
+   dims:=shape first first cell ;
+   rs:=first dims ;
+   cs:=second dims ;
+   R:=floor (first dimx/rs) ;
+   C:=floor (second dimx/cs) ;
+   score:=product dimx ;
+   z:=x ;
+   FOR i WITH tell (R - 1) DO
+      FOR j WITH tell (C - 1 ) DO
+         pat:=first first cell ;
+         bgr:=tile pat R C ;
+         res:=bgr xor x ;
+         diff:=sum abs res ;
+         IF diff<score THEN
+            z:=res ;
+            score:=diff ;
+            write i j ;
+         ENDIF ;
+         cell:=1 drop cell ;
+      ENDFOR ;
+   ENDFOR ;
+   z
+}
+
+
+
+# 7. RANDOM BOOLEAN VECTORS AND MATRICES
+
+
+# length-N random boolean vector, with the number of 1's approximately P*N, 0<p<1
+
+randv is op N P { list random N < P }
+
+
+# RxC random boolean matrix, with the number of 1's approximately P*R*C, 0<p<1
+
+randm is op R C P { [ R , C ] reshape ( R * C randv P ) }
+
+
+
+# 8. DEMONSTRATION PROGRAMS
+
+
+# apple_test usage: apple_test 'hel' OR apple_test 'cog'
+
+apple_test is op fn {
+   write 'fast detection of an embedded picture in an "easy" image' ;
+   img:=readpbm "apple-1.pbm ;
+   img := not img ;
+   writepbm img "ORIGINAL.pbm ;
+   pat:=randm 16 16 0.5 ;
+   bgr:=(tile pat 16 16) xor (randm 256 256 0.1) ;
+   res:=bgr xor img ;
+   writepbm res "PROBLEM.pbm ;
+   det:=texdetect res fn ;
+   writepbm det "RESULT.pbm ;
+}
+
+
+# peppers_test usage: peppers_test 0
+
+peppers_test is op fn {
+   write 'not-so-fast detection of an embedded picture in a "difficult" image' ;
+   img:=readpbm "peppers.pbm ;
+   writepbm img "ORIGINAL.pbm ;
+   pat:=randm 8 8 0.5 ;
+   bgr:=(tile pat 32 32) xor (randm 256 256 0.1) ;
+   res:=bgr xor img ;
+   writepbm res "PROBLEM.pbm ;
+   det:=testall res ;
+   writepbm det "RESULT.pbm ;
+}
+
+
+# forensic_test usage : forensic_test 0
+
+forensic_test is op n {
+   write 'Lifting a fingerprint from a fabric background' ;
+   write 'original fingerprint' ;
+   fgp := readpbm "fingerprint.pbm ;
+   fgp := not fgp ;
+   writepbm fgp "PRINT.pbm ;
+   write 'fabric background' ;
+   fab := readpbm "fabric.pbm ;
+   writepbm fab "FABRIC_SIM.pbm ;
+   write 'fingerprint on fabric' ;
+   prb := readpbm "fingerprint_problem.pbm ;
+   writepbm prb "PROBLEM.pbm ;
+   write 'working on best solution...' ;
+   bestsol := testall prb ;
+   writepbm bestsol "BEST.pbm ;
+   write 'quick and dirty solutions' ;
+   helsol := texdetect prb 'hel' ;
+   cogsol := texdetect prb 'cog' ;
+   writepbm helsol "HEL.pbm ;
+   writepbm cogsol "COG.pbm ;
+}
+
+
+# steganography_test usage: steganography_test 0
+
+steganography_test is op n {
+   write 'Extracting a handwritten message from a security envelope pattern' ;
+   write 'original handwritten message' ;
+   msg := readpbm "steg_msg.pbm ;
+   msg := not msg ;
+   writepbm msg "ORIGINAL.pbm ;
+   write 'security envelope background' ;
+   bgr := readpbm "steg_bgr.pbm ;
+   noise := randm 256 512 0.1 ;
+   bgr := bgr xor noise ;
+   writepbm bgr "BACKGROUND.pbm ;
+   write 'message hidden in background pattern' ;
+   prb := msg xor bgr ;
+   writepbm prb "PROBLEM.pbm ;
+   write 'working on best solution...' ;
+   bestsol := testall prb ;
+   writepbm bestsol "BEST.pbm ;
+   write 'quick and dirty solutions' ;
+   helsol := texdetect prb 'hel' ;
+   cogsol := texdetect prb 'cog' ;
+   writepbm helsol "HEL.pbm ;
+   writepbm cogsol "COG.pbm ;
+}
+
+   

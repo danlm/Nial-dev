@@ -657,7 +657,7 @@ disp(nialptr x, int displaymode)
             char        buf[NDINT + 1];
             nialint     intlen;
 
-            sprintf(buf, NIALINT_FORMAT, fetch_int(x, i));
+            sprintf(buf, NIALINT_FORMAT, (nialint_format_type)fetch_int(x, i));
             reservechars(NDINT + 1);
             strcpy(ptrCbuffer, buf);
             ptrCbuffer += (intlen = strlen(buf));

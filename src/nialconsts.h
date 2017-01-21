@@ -50,6 +50,7 @@
 #define charsPW (4)
 
 #define NIALINT_FORMAT "%d"
+typedef int nialint_format_type; 
 
 #elif defined(INTS64)
 
@@ -65,6 +66,10 @@
 #define LARGEINT_Boundary 9223372036854775807.0
 #define SMALLINT_Boundary (-9223372036854775807.0 - 1)
 #endif
+
+#define NIALINT_FORMAT "%lld"
+typedef long long nialint_format_type; 
+
 #endif
 
 #ifdef WINNIAL
@@ -79,6 +84,10 @@
 #define LARGEINT_Boundary 9223372036854775807.0
 #define SMALLINT_Boundary (-9223372036854775807.0 - 1)
 #endif
+
+#define NIALINT_FORMAT "%lld"
+typedef long long nialint_format_type; 
+
 #endif
 
 /* Size of nial word in bytes */
@@ -101,13 +110,7 @@
 
 /* bitsize for nial representations */
 
-#ifdef UNIXSYS
 #define sizeofnialint sizeof(nialint)
-#endif
-#ifdef WINNIAL
-#define sizeofnialint sizeof(nialint)
-#endif
-
 #define sizeofnialreal sizeof(double)
 #define sizeofnialchar sizeof(char)
 
@@ -121,13 +124,6 @@
 /* How types are packed into words */
 #define boolsPW (64)
 #define charsPW (8)
-
-#ifdef UNIXSYS
-#define NIALINT_FORMAT "%ld"
-#endif
-#ifdef WINNIAL
-#define NIALINT_FORMAT "%lld"
-#endif
 
 #else
 #error missing declaration of integer size

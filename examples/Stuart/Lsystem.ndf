@@ -1,0 +1,138 @@
+# L-SYSTEM
+#
+# The demos in this file show how one class of L-system fractals can be generated
+# using just a few simple boolean operations.
+#
+# demo1 generates familiar patterns with 2x2 block replacement. The argument is the
+# number of iterations of replacement. Each time the argument is increased by 1,
+# the side of the square image doubles in length. Use small values for n, e.g., 2-4,
+# and resize the images with irfanview "resize" (if available).
+#
+# Example:
+#         demo1 2
+#
+# will generate 8x8 instances of the several familiar patterns.
+#
+# demo2 provides an opportunity to experiment with block replacement. For the first
+# two arguments enter any pair of integers in the range 0-15. The third argument is
+# the number of iterations of block replacement as in demo1 above. Use small values,
+# e.g., 2-4, and resize the images with irfanview "resize" (if available). The result
+# image has the fractal image on the left, its helical transform in the middle, and
+# its cognitive transform on the right.
+#
+# Example:
+#         demo2 9 9 2
+#
+# will create a standard checkerboard.
+#
+# Demo3 creates a "pariton" and its helical and cognitive transforms. The result image
+# has the pariton on the left, its helical transform in the middle, and its cognitive
+# transform on the right. (NB: a pariton is a type of fractal, but not an L-system).
+#
+# Example:
+#         demo3 3
+#
+# will create a random 16x16 pariton and its helical and cognitive transforms.
+
+
+loaddefs "transforms
+
+loaddefs "display
+
+
+# Decimal-to-binary conversion
+
+binary is op x n { reverse ( 1 match ( ( x quotient ( 2 power tell n ) ) mod 2 ) ) }
+
+
+# Decimal-to-2x2-block conversion
+
+dec2block is op n { 2 2 reshape binary n 4 }
+
+
+# Remove nested array structure from output of block-replacement operations
+
+flatten is op x {
+   i := content transpose ( [ floor ( valence x / 2 ) , 2 ] reshape tell valence x ) ;
+   a := i fuse x ;
+   side := floor sqrt tally x ;
+   [ side , side ] reshape content a
+}
+
+
+# Generates L-system fractal images by 2x2 block replacement. b and w are both 2x2 boolean
+matrices. Beginning with just the b matrix, each successive iteration replaces every "l" in
+the current matrix with a copy of b, and every "o" with a copy of w. There are 256 possible
+combinations of two 2x2 blocks; however, the number of unique combinations is smaller because
+of reflections and rotations. In addition, if matrix b is all l's, the result will be an
+all-black matrix regardless of what matrix w is. Argument n specifies the number of iterations
+of replacement to be performed.
+
+replace is op b w n {
+   bw := [ w , b ] ;
+   i := abs b ;
+   FOR k WITH tell n DO
+      x := bw#i ;
+      y := flatten mix x ;
+      i := abs y ;
+   ENDFOR ;
+   y
+}
+
+
+# Generate an L-system fractal by 2 x 2 block replacement. Arguments b and w
+are integers in the range 0-15 that specify the 2 x 2 black and white blocks.
+Argument n is the number of iterations of replacement to be performed. Use
+small values for n, e.g., 2-4, and resize the image in IrfanView or other
+image viewer.
+
+# Example: Lsys 11 0 6  <- generates a 128 x 128 matrix representing the
+Sierpinski Triangle.
+
+Lsys is op b w n {
+   blk := dec2block b ;
+   wht := dec2block w ; 
+   replace blk wht n
+}
+
+
+demo1 is op n {
+   write 'Sierpinski Triangle' ;
+   x := Lsys 11 0 n ;
+   writepbm x "SIERPINSKI.pbm ;
+   write 'Langlet G matrix' ;
+   x := Lsys 14 0 n ;
+   writepbm x "LANGLET_G.pbm ;
+   write 'Hadamard matrix' ;
+   x := Lsys 14 1 n ;
+   writepbm x "HADAMARD.pbm ;
+   write 'Checkerboard' ;
+   x := Lsys 9 9 n ;
+   writepbm x "CHECKERBOARD.pbm ;
+   write 'Horizontal stripes' ;
+   x := Lsys 12 12 n ;
+   writepbm x "HSTRIPES.pbm ;
+   write 'Vertical stripes' ;
+   x := Lsys 10 10 n ;
+   writepbm x "VSTRIPES.pbm ;
+}
+
+
+demo2 is op black white n {
+   x := Lsys black white n ;
+   y := fanhel2d x ;
+   z := fancog2d x ;
+   fill := ( first shape x ) 5 reshape l ;
+   img := 1 catenate ( 1 catenate ( 1 catenate ( 1 catenate x fill ) y ) fill ) z ;
+   writepbm img "DEMO2.pbm ;
+}
+
+
+demo3 is op n {
+   x := par randv ( 2 power n ) 0.5 ;
+   y := fanhel2d x ;
+   z := fancog2d x ;
+   fill := ( first shape x ) 5 reshape l ;
+   img := 1 catenate ( 1 catenate ( 1 catenate ( 1 catenate x fill ) y ) fill ) z ;
+   writepbm img "DEMO3.pbm ;
+}
