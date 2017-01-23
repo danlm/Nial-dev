@@ -1,5 +1,5 @@
 #The Nial Language
-
+![Image](./NialLogo.jpg?raw=true)
 
 #Introduction
 

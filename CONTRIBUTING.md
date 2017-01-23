@@ -8,12 +8,6 @@
  - [Contribution Submission](#contribution-submission)
  - [Contribution Approval](#contribution-approval)
 
-## Code of Conduct - Do we need this?
-
-The Code of Conduct explains the *bare minimum* behavior
-expectations the Node Foundation requires of its contributors.
-[Please read it before participating.](./CODE_OF_CONDUCT.md)
-
 ## Issue Contributions
 
 When opening new issues or commenting on existing issues on this repository
@@ -57,10 +51,7 @@ that are not part of the project proper. Any changes to files
 in those directories or its subdirectories should be sent to their respective
 projects. Do not send your patch to us, we cannot accept it.
 
-In case of doubt, open an issue in the
-[issue tracker] or contact one of the
-[project Collaborators].
-Especially do so if you plan to work on something big. Nothing is more
+In case of doubt, open an issue or contact one of the project collaborators, especially if you plan to work on something big. Nothing is more
 frustrating than seeing your hard work go to waste because your vision
 does not align with the project team.
 
@@ -134,32 +125,7 @@ $ git rebase upstream/master
 
 ### Step 5: Test
 
-Bug fixes and features **should come with tests**. Add your tests in the
-`test/parallel/` directory. For guidance on how to write a test for this
-project, see this [guide](./doc/guides/writing_tests.md). Looking at other tests
-to see how they should be structured can also help.
-
-To run the tests on Unix / OS X:
-
-```text
-$ ./configure && make -j8 test
-```
-
-If you are updating tests and just want to run a single test to check it, you
-can use this syntax to run it exactly as the test harness would:
-
-```text
-$ [TBD]
-```
-
-You can run tests directly:
-
-```text
-$ [TBD]
-```
-
-Remember to recompile with `make -j8` in between test runs if you change
-core modules.
+[TBA]
 
 ### Step 6: Push
 
@@ -167,7 +133,7 @@ core modules.
 $ git push origin my-branch
 ```
 
-Go to https://github.com/yourusername/node and select your branch.
+Go to https://github.com/yourusername/nial-dev and select your branch.
 Click the 'Pull Request' button and fill out the form.
 
 ### Contribution Approval Policy
