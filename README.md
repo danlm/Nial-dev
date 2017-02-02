@@ -5,29 +5,29 @@
 
 The Nial language was developed by Mike Jenkins and Trenchard More in a collaborative research project 
 supported by Queen's University at Kingston and IBM Cambridge Scientific Center from 1979 to 1982. Mike's 
-team at Queen's designed and implemented a portable C-based interpreter written, Q'Nial that was 
+team at Queen's designed and implemented a portable C-based interpreter, Q'Nial, that was 
 initially released in 1983.
 
 The language combines Trenchard More's theory of nested arrays with Mike Jenkins' ideas on how to 
 build an interactive programming system. The goal was to combine the strengths of APL array-based 
 programming with implementation concepts borrowed from LISP, structured programming ideas from 
 Algol, and functional programming concepts from FP. THe interpreter, originally developed for 
-Unix, was small enough to run on the then newly released IBM PC and portable enough to execute 
-on IBM mainframes computers. 
+Unix, was small enough to run on the then-newly-released IBM PC and portable enough to execute 
+on IBM's mainframe computers. 
 
-Nial Systems limited licensed the interpreter from Queen's Uinversity and marketed it widely. 
-Mike Jenkins continued to refine both the language and its implementation. In 2006 Mike released 
+Nial Systems Limited licensed the interpreter from Queen's Uinversity and marketed it widely. 
+Mike Jenkins continued to refine both the language and its implementation. In 2006, Mike released 
 Version 6.3 as an open source project to encourage continued development of Nial.
 
-In 2014 MIke started working with John Gibbons to develop a 64-bit version and to add 
+In 2014, Mike started working with John Gibbons to develop a 64-bit version and to add 
 capabilities that John needed for his work. The decision was made to target the open 
-source for Unix-based platforms  and release it on GitHub.  
+source for Unix-based platforms and release it on GitHub.  
 
 
 #Version 7 Q'Nial
 
 This version of Q'Nial is intended for people who want to integrate the functionality of Nial into 
-projects that can take advantage of its powerful array computations for  numeric, symbolic, or 
+projects that can take advantage of its powerful array computations for numeric, symbolic, or 
 data analysis problems. The major changes are:
 
 -   the capability to build both 32 and 64 bit versions
@@ -39,9 +39,9 @@ data analysis problems. The major changes are:
 
 #Currently Supported Platforms
 
--   Linux
+-   Linux: 32-bit and 64-bit Intel, ARM (on Raspberry Pi) 
 -   Darwin/OSX
-
+-   Windows (using Cygwin)
 
 #Getting the Source
 
@@ -67,11 +67,11 @@ tutorial       | Tutorials for Nial
 
 #Building Nial
 
-Initially Nial is built from source by compiling the supplied distribution. This
+Initially, Nial is built from source by compiling the supplied distribution. This
 is a working version of Nial with a core set of functionality based on standard
 features of both Linux and OSX. 
 
-Once that version of Nial is built it is possible to build a specialised 
+Once that version of Nial is built, it is possible to build a specialised 
 version of Nial using the package builder. The package builder is itself 
 written in Nial and allows you to add packages or remove packages from the initial
 build.  
@@ -82,7 +82,7 @@ directory and the Nial library can be found at
 
 *$HOME/QNial7/niallib*.
 
-Once you have built Nial you can change this by editing the source and using the 
+Once you have built Nial, you can change this by editing the source and using the 
 package builder.   
 
 Nial can be built either as a 32 bit system or as a 64 bit system. This is controlled 
@@ -90,12 +90,12 @@ by options set in the *CMakeLists.txt* file in the source directory. You can als
 set a fast math option which sets the compiler flags appropriately.
 
 The distribution includes binary 64-bit versions of the executable interpreter 
-for OSX and Linux in the bin directory. THese builds include the extensions 
+for OSX and Linux in the bin directory. These builds include the extensions 
 described in the extensions directory.
 
 ##Requirements
 
-The build process uses CMake and requires that you have installed this. You can use
+The build process uses CMake. You can use
 either the command line version of CMake or the GUI.
 
 The GNU readline library is also required. This should be present by default on OSX but
