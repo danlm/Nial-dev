@@ -1,0 +1,124 @@
+     !pwd
+     processapkg
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+basic_nial.txt
+The following features are being installed:
+Completed work for Package: basic Nial version
+     loaddefs"buildfromcore
+     bye
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX Mar 15 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"buildfromcore
+     processapkg
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+basic_nial.txt
+The following features are being installed:
+Completed work for Package: basic Nial version
+     loaddefs"buildfromcore
+     processapkg
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+basic_nial.txt
+The following features are being installed:
+Completed work for Package: basic Nial version
+     bye
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX Mar 15 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"buildfromcore
+Completed work to generate source code for basic nial: 
+     bye
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"addfeatures
+     processapkg
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+extendnial.txt
+The following features are being installed:
+   REGEXP
+   SOCKETS
+   SPROCESS
+   NTABLES
+   MEMSPACES
+   NCOMPLEX
+   QSORT
+   NFILES
+   NDYNLOAD
+Completed work for Package: extendnial
+     
+     bye
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX Mar 15 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"buildfromcore
+Completed work to generate source code for basic nial: 
+     bye
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"addfeatures
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+extendnial.txt
+The following features are being installed:
+   REGEXP
+   SOCKETS
+   SPROCESS
+   NTABLES
+   MEMSPACES
+   NCOMPLEX
+   QSORT
+   NFILES
+   NDYNLOAD
+Completed work for Package: extendnial
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     loaddefs"addfeatures
+Available Packages:
+ 0) basic_debug.txt
+ 1) basic_nial.txt
+ 2) extendnial.txt
+Enter a single package number:
+> You have chosen:
+extendnial.txt
+The following features are being installed:
+   REGEXP
+   SOCKETS
+   SPROCESS
+   NTABLES
+   MEMSPACES
+   NCOMPLEX
+   QSORT
+   NFILES
+   NDYNLOAD
+Completed work for Package: extendnial
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     bye

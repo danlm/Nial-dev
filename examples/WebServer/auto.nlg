@@ -1,0 +1,73 @@
+Q'Nial V7.0 Open Source Edition Intel x86 64bit Linux Sep  3 2016
+Copyright (c) NIAL Systems Limited
+clear workspace created
+     "load ws_test
+?undefined identifier: "load WS_TEST <***>
+     load "ws_test
+?cannot open nws file
+     loaddefs "ws_test
+?undefined identifier: ) 4096 IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: NIO_WRITE_STREAM S IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: ST ! NET_STANDARD_READ <***> ; SET_WRITE_STREAM ST
+?undefined identifier: := NIO_POLL IOS_NO_WAIT <***> [ ] WST
+errors found: 4
+*** Creating route table
+?undefined identifier: IOS 1024 IOS_NO_WAIT <***> ; IF COUNT
+?undefined identifier: T := NET_CREATE_NEW_STREAM <***> CTXT ; SET_READ_STREAM
+?undefined identifier: HS := WS_NEW_HTTP_STREAM <***> HP ; NET_ADD_STREAM
+?undefined identifier: LS := NET_CREATE_NEW_STREAM <***> CTXT ; SET_STREAM_TYPE
+?undefined identifier: 5 ; WS_NEW_LISTENER_STREAM <***> FD ; ENDIF
+?undefined identifier: '*** Starting server' ; WS_CREATE_SERVER <***> HOST PORT 
+
+;
+errors found: 6
++----------------------+-----+
+|*** adding route entry|test1|
++----------------------+-----+
++----------------------+-----+
+|*** adding route entry|test2|
++----------------------+-----+
+?undefined identifier: WS_START_SERVER <***> '0.0.0.0' 5000 (
+errors found: 1
+     loaddefs "html_bld "http_utils "net_server
+     loaddefs "web_server "ws_router "ws_test_page
+?undefined identifier: ) 4096 IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: NIO_WRITE_STREAM S IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: ST ! NET_STANDARD_READ <***> ; SET_WRITE_STREAM ST
+?undefined identifier: := NIO_POLL IOS_NO_WAIT <***> [ ] WST
+errors found: 4
+*** Creating route table
+?undefined identifier: IOS 1024 IOS_NO_WAIT <***> ; IF COUNT
+?undefined identifier: T := NET_CREATE_NEW_STREAM <***> CTXT ; SET_READ_STREAM
+?undefined identifier: HS := WS_NEW_HTTP_STREAM <***> HP ; NET_ADD_STREAM
+?undefined identifier: LS := NET_CREATE_NEW_STREAM <***> CTXT ; SET_STREAM_TYPE
+?undefined identifier: 5 ; WS_NEW_LISTENER_STREAM <***> FD ; ENDIF
+?undefined identifier: '*** Starting server' ; WS_CREATE_SERVER <***> HOST PORT 
+
+;
+errors found: 6
+     loaddefs "ws_test
+?undefined identifier: ) 4096 IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: NIO_WRITE_STREAM S IOS_NO_WAIT <***> ; ENDIF ;
+?undefined identifier: ST ! NET_STANDARD_READ <***> ; SET_WRITE_STREAM ST
+?undefined identifier: := NIO_POLL IOS_NO_WAIT <***> [ ] WST
+errors found: 4
+*** Creating route table
+?undefined identifier: IOS 1024 IOS_NO_WAIT <***> ; IF COUNT
+?undefined identifier: T := NET_CREATE_NEW_STREAM <***> CTXT ; SET_READ_STREAM
+?undefined identifier: HS := WS_NEW_HTTP_STREAM <***> HP ; NET_ADD_STREAM
+?undefined identifier: LS := NET_CREATE_NEW_STREAM <***> CTXT ; SET_STREAM_TYPE
+?undefined identifier: 5 ; WS_NEW_LISTENER_STREAM <***> FD ; ENDIF
+?undefined identifier: '*** Starting server' ; WS_CREATE_SERVER <***> HOST PORT 
+
+;
+errors found: 6
++----------------------+-----+
+|*** adding route entry|test1|
++----------------------+-----+
++----------------------+-----+
+|*** adding route entry|test2|
++----------------------+-----+
+?undefined identifier: WS_START_SERVER <***> '0.0.0.0' 5000 (
+errors found: 1
+     bye

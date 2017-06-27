@@ -1,0 +1,3 @@
+NFILES   U mkdir imkdir
+NFILES   U rmdir irmdir
+NFILES   U rename irename
