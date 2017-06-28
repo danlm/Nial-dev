@@ -225,7 +225,7 @@ ProcessPackage IS OP Pkgname {
      Cmd := link 'cp all_features/' Feature '/' Feature '_src/*.[ch] ../src' ;
      newhost Cmd;
   ENDFOR;
-%  work to build the CmakeLists.txt file;
+%  work to build the CMakeLists.txt file;
   Cmaketext := getfile 'Cmakeheader';
 % add .c files for Features ub NIAL_SRC;
   FOR Feature WITH Featurenames DO
@@ -245,7 +245,7 @@ ProcessPackage IS OP Pkgname {
     ENDIF;
   ENDFOR;
   Cmaketext := Cmaketext link getfile 'Cmaketrailer';
-  putfile '../src/CmakeLists.txt' Cmaketext;
+  putfile '../src/CMakeLists.txt' Cmaketext;
   write link 'Completed work for Package: ' Packagename;
   ENDIF
 } 
