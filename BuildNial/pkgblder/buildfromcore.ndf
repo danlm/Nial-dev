@@ -200,11 +200,11 @@ Buildcore IS {
   putfile '../src/pkgswchs.h' Pkgswchs;
 % copy core source files to src dir ;
   newhost 'cp src_nialcore/* ../src';
-%  work to build the CmakeLists.txt file;
+%  work to build the CMakeLists.txt file;
   Cmaketext := getfile 'Cmakeheader';
   Cmaketext := Cmaketext link getfile 'Cmakemiddle';
   Cmaketext := Cmaketext link getfile 'Cmaketrailer';
-  putfile '../src/CmakeLists.txt' Cmaketext;
+  putfile '../src/CMakeLists.txt' Cmaketext;
   write link 'Completed work to generate source code for basic nial: ';
   ENDIF
 } 
