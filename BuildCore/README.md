@@ -19,9 +19,6 @@ src            | The core source code and a CmakeLists.txt file
 The build process uses CMake and requires that you have installed this. You
 can use either the command line version of CMake or the GUI.
 
-The GNU readline library is also required. This should be present by default
-on OSX but may need to added to Linux distributions.
-
 Both the CLANG compiler and GCC can be used to build Nial so that you will 
 needto have installed one of these compilers. On OSX you should install
 *XCode*, on Linux use the appropriate package manager for your distribution.
@@ -35,12 +32,17 @@ steps:
 
 1. Ensure that the "build" directory is empty.
 
-2. Set up CMake to point at the Buildcore/src directory as the src
-   directory and BuildCore/build as the build directory.
-
-3. Change into build and execute "make".
+2. If you are using the Cmake GUI set up CMake to point at the Buildcore/src 
+   directory as the source directory and BuildCore/build as the build and then
+   generate the contents of the build directory. If you are using the 
+   command line version of Cmake then do the following
 
    $ cd build
+   $ cmake ../src
+   
+
+3. Change into build, if you are not already there, and execute "make".
+
    $ make
 
    The result will be the executable "nialcore" in the build directory.
@@ -69,9 +71,9 @@ steps:
 
    to end the nial interactive session.
 
-4. Copy the nialcore executable to the BuildNial directory using
+4. Copy the nialcore executable to the pkgbldr subdirectory of the BuildNial directory using
 
-   $ cp nialcore ../BuildNial
+   $ cp nialcore ../../BuildNial/pkgbldr
 
 
 You are now ready to build the full QNial7 using pkgblder in BuildNial.
