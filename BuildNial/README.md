@@ -9,7 +9,6 @@ Entry          | Contents
 -------------- | ---------------------------------------- 
 README.md      | The file you are currently reading 
 build          | directory used by CMake, initially empty
-helpers        | Some C routines used in one or more packages
 pkgblder       | The directory used to select a package and add features
 src            | filled by pkgblder with source code  and CmakeLists.txt, 
                | initially empty
@@ -22,9 +21,6 @@ tools          | software tools
 
 The build process uses CMake and requires that you have installed this. You can
 use either the command line version of CMake or the GUI.
-
-The GNU readline library is also required. This should be present by default
-on OSX but may need to be added to Linux distributions.
 
 Both the CLANG compiler and GCC can be used to build Nial so that you will need
 to have installed one of these compilers. On OSX you should install *XCode*,
@@ -81,14 +77,23 @@ The basic version is built first with the following steps:
    $ cd pkgblder
 
 4. Run the Nial script buildfromcore.ndf to populate the src directory with the
-   source code and CmakeLists.txt files:
+   source code and CMakeLists.txt files:
    $ ./nialcore -defs buildfromcore
 
-5. Run CMake pointing at the BuildNial src and build directories. Nial can be
+5. Nial can be
    built either as a 32 bit system or as a 64 bit system. This is controlled
    by options set in the *CMakeLists.txt* file in the source directory. You
    can also set a fast math option which sets the compiler flags appropriately.
 
+6. If you are using the Cmake GUI then run it now with the source directory 
+   set to BuildNial/src and the build directory to BuildNial/build. Then
+   change to the build directory.
+
+   If you are using the command line version of Cmake then do the following
+
+   $ cd build
+   $ cmake ../src
+ 
 6. Do the make in the build directory to build executable nial:
    $ cd ../build
    $ make
@@ -134,7 +139,7 @@ Each feature is given a name in all capitals thst is the name of its subdirector
 The current set of features are:
 
 DEBUGINCLUDED	adds DEBUG capability to basic nial
-MEMSPACES       supports shared memory spaces
+MEMSPACES       supports shared memory spaces 
 NCOMPLEX        complex arithmetic package
 NDYNLOAD        supports dynamic loading 
 NFILES          simple file features
