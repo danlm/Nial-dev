@@ -499,6 +499,9 @@ fpehandler(int signo)
 
 /* sleep function  */
 
+#ifdef WINNIAL
+#define sleep(x) Sleep(x*1000)
+#endif
 
 
 void

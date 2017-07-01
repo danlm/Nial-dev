@@ -16,6 +16,9 @@ support        | support directories for different platforms
 testing        | directories for testing QNial7 versions
 tools          | software tools
 
+At the moment the Windows version is built as a Cross Compilation on Linux
+using the MinGW-w64 (GCC) compilation tools. We provide pre-compiled 
+binaries for Windows with all the supported features.
 
 ##Requirements
 
@@ -27,6 +30,11 @@ to have installed one of these compilers. On OSX you should install *XCode*,
 on Linux use the appropriate package manager for your distribution. CLANG appears
 to generate slightly faster code on Linux.
 
+If you are cross compiling the Windows version then you will need to have installed 
+the Mingw-w64 tools. This is best done using the package manager on your Linux system.
+A CMake Toolchain file is provided in the tools subdirectory and its use is noted
+in the following lines. It only needs to be used in the final build stage when you
+are adding feaures and building a Windows version.
 
 #Building a QNial7 version using pkkblder
 
@@ -138,21 +146,22 @@ empty is ignored.
 Each feature is given a name in all capitals thst is the name of its subdirectory.
 The current set of features are:
 
+
 DEBUGINCLUDED	adds DEBUG capability to basic nial
-MEMSPACES       supports shared memory spaces 
+MEMSPACES       supports shared memory spaces  (Linux/OSX)
 NCOMPLEX        complex arithmetic package
-NDYNLOAD        supports dynamic loading 
+NDYNLOAD        supports dynamic loading (Linux/OSX)
 NFILES          simple file features
 NIALDSP         digital signal processing support
 NIAL_FFTW       fast fourier transform support
 NSFML_AUDIO     Audio support
 NTABLES         user hash tables for associative array features
-PROCESS         Unix style process control
-SOCKETS         Unix socket support
+PROCESS         Unix style process control (Linux/OSX)
+SOCKETS         Unix/Windows socket support
 QSORT           Quicksort algorithm	
-REGEXP          Posix regular expression support
-SPROCESS        support for streams
-WINPROCESS      process support for Windows
+REGEXP          Posix regular expression support (Linux/OSX)
+SPROCESS        support for streams (Lnux/OSX)
+WINPROCESS      process support for Windows (Windows)
 
 The subdirectory for a feature has one or more files and a subdirectory of src
 files. For example, the REGEXP directory has:
@@ -173,6 +182,7 @@ basic_debug.txt     - builds a basic nial where the DEBUG facility can be
                       the core cpabilities.
 QNial7.txt          - builds the standard V7 nial
 allfeatures.txt     - builds all the features that are not commented out using #.
+win_allfeaures.txt  - builds a Windows version with all applicable fearures
 
 
 #Building a specific Package
@@ -194,7 +204,19 @@ allfeatures.txt     - builds all the features that are not commented out using #
 This will present a list of packages numbered from 0. Respond with the
 number of the package you wish to create.
 
-5.Run CMake pointing at the BuildNial src and build directories.
+5. If you are using the CMake GUI then Run CMake pointing at the BuildNial 
+   src and build directories. If you are building a Windows version then
+   you will need to set the CMAKE_TOOLCHAIN_FILE variable to the 
+   toolchain file found in the 'tools/CmakeTools' directory.
+   
+   If you are using the command line then do the following
+   $cd build
+   $cmake ../src
+   
+   or for thw Windows version
+   $cd build
+   $cmake -DCMAKE_TOOLCHAIN_FILE=../tools/CmakeTools/Toolchain-mingw64-Win64.cmake ../src
+ 
 
 6. Do the make in the build directory to build executable "nial":
    $ cd ../build
