@@ -59,7 +59,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
     include_directories(../support/cygwin64/include)
     link_directories(../support/cygwin64/lib)
   endif (USE_INTS64)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "CYGWIN")
+endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
