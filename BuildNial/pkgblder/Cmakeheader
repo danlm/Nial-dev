@@ -48,6 +48,19 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif (USE_INTS64)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# CYGWIN specific settings
+if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLINUX -DUNIXSYS")
+  if (USE_INTS32)
+    include_directories(../support/cygwin32/include)
+    link_directories(../support/cygwin32/lib)
+  endif (USE_INTS32)
+  if (USE_INTS64)
+    include_directories(../support/cygwin64/include)
+    link_directories(../support/cygwin64/lib)
+  endif (USE_INTS64)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "CYGWIN")
+
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DOSX -DOSX_INTEL -DUNIXSYS")

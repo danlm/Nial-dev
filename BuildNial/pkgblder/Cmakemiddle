@@ -9,6 +9,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (NIAL_LIBS m util dl rt)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# Cygwin specific settings
+if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+	set (NIAL_LIBS m util dl rt)
+endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set (NIAL_LIBS m util dl)

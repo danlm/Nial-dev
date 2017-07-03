@@ -34,6 +34,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLINUX -DUNIXSYS")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+# Cygwin specific settings
+if (CMAKE_SYSTEM_NAME MATCHES "GYGWIN")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLINUX -DUNIXSYS")
+endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DOSX -DOSX_INTEL -DUNIXSYS")
@@ -85,6 +90,11 @@ set (NIAL_SRCS absmach.c
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set (NIAL_LIBS m util dl)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+# Cygwin specific settings
+if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+	set (NIAL_LIBS m util dl)
+endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 # OSX specific flags
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
