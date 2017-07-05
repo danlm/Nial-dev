@@ -501,6 +501,12 @@ fpehandler(int signo)
 
 
 
+
+#ifdef WINNIAL
+#define sleep(x) Sleep(x*1000)
+#endif
+
+
 void
 isleep(void)
 { nialptr x;

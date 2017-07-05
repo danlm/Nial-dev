@@ -49,9 +49,15 @@
 #  include <netinet/tcp.h>
 #  include <netdb.h>
 #endif
+
 #ifdef WINNIAL
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+#ifndef EWOULDBLOCK
+#define EWOULDBLOCK WSAEWOULDBLOCK
+#endif
+
 #endif
 #  include <sys/types.h>
 #  include <fcntl.h>
