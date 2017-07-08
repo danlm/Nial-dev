@@ -5,9 +5,9 @@
 # ---------------- Standard Libraries --------------------
 
 # Linux specific settings
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set (NIAL_LIBS m util dl rt)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # Cygwin specific settings
 if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
@@ -15,14 +15,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 # OSX specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set (NIAL_LIBS m util dl)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # Windows specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set (NIAL_LIBS "")
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 # ---------------- Extension Options ---------------------
 

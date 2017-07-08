@@ -30,9 +30,9 @@ endif (USE_FASTMATH)
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OPTFLAGS}")
 
 # Linux specific settings
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLINUX -DUNIXSYS")
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # Cygwin specific settings
 if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
@@ -40,14 +40,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 # OSX specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DOSX -DOSX_INTEL -DUNIXSYS")
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # Windows specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINDOWS -DWINNIAL")
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 
 
@@ -87,9 +87,9 @@ set (NIAL_SRCS absmach.c
 # ---------------- Standard Libraries --------------------
 
 # Linux specific settings
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set (NIAL_LIBS m util dl)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 # Cygwin specific settings
 if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
@@ -97,14 +97,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 # OSX specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	set (NIAL_LIBS m util dl)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 # Windows specific flags
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set (NIAL_LIBS "")
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 # ---------------- Extension Options ---------------------
 
