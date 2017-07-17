@@ -32,32 +32,44 @@ steps:
 
 1. Ensure that the "build" directory is empty.
 
-2. If you are using the Cmake GUI set up CMake to point at the Buildcore/src 
-   directory as the source directory and BuildCore/build as the build and then
-   generate the contents of the build directory. If you are using the 
+2. If you are using the Cmake GUI set up CMake to point at the
+
+
+ QNial7/Buildcore/src 
+ 
+   directory as the source directory and 
+   
+ QNial7/BuildCore/build 
+ 
+ as the build directory and then use CMake to
+   generate the contents of the build directory. 
+   
+   If you are using the 
    command line version of Cmake then do the following
 
    $ cd build
+   
    $ cmake ../src
    
 
-3. Change into build, if you are not already there, and execute "make".
+3. Change into build, if you are not already there, and execute *make* to build the executable.
 
    $ make
 
-   The result will be the executable "nialcore" in the build directory.
+   The result will be the executable *nialcore* in the build directory.
 
    Test it by running nialcore interactively with the command
 
    $ ./nialcore -i
 
-   which will display a header like:
+   This will display a header like:
 
    Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
    Copyright (c) NIAL Systems Limited
+   
    clear workspace created
 
-   and will be awaiting a nial input indented 6 spaces. Type:
+   and then will be awaiting a *nial* input indented 6 spaces. Type:
 
         5 + tell 10
 
@@ -66,15 +78,15 @@ steps:
    5 6 7 8 9 10 11 12 13 14
 
    Type:
+   
+        bye
 
-       bye
-
-   to end the nial interactive session.
+   to end the *nial* interactive session.
 
 4. Copy the nialcore executable to the pkgbldr subdirectory of the BuildNial directory using
 
    $ cp nialcore ../../BuildNial/pkgbldr
 
 
-You are now ready to build the full QNial7 using pkgblder in BuildNial.
+You are now ready to build the full QNial7 using pkgblder in BuildNial. See the README.md in BuildNial for instructions.
 

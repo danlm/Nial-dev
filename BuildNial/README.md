@@ -36,7 +36,7 @@ A CMake Toolchain file is provided in the tools subdirectory and its use is note
 in the following lines. It only needs to be used in the final build stage when you
 are adding feaures and building a Windows version.
 
-#Building a QNial7 version using pkkblder
+##Building a QNial7 version using pkkblder
 
 A QNial7 exeutable includes the core functionality built using BuildCore, the
 extensions that add the functionality described in the document 
@@ -78,14 +78,18 @@ The basic version is built first with the following steps:
    $ cd BuildNial
 
 2. Clear the build and src subdirectories:
-   $ rm -r build/*
+ 
+   $rm -r build/*
+   
    $ rm -r src/*
 
 3. Change to the directory pkgblder to build the basic version:
+   
    $ cd pkgblder
 
 4. Run the Nial script buildfromcore.ndf to populate the src directory with the
    source code and CMakeLists.txt files:
+   
    $ ./nialcore -defs buildfromcore
 
 5. Nial can be
@@ -97,42 +101,49 @@ The basic version is built first with the following steps:
    set to BuildNial/src and the build directory to BuildNial/build. Then
    change to the build directory.
 
-   If you are using the command line version of Cmake then do the following
+   If you are using the command line version of Cmake then do the following:
 
    $ cd build
+   
    $ cmake ../src
  
 6. Do the make in the build directory to build executable nial:
+
    $ cd ../build
+
    $ make
 
-7. Test the nial executable in build by running it interactively using
+7. Test the nial executable in build by running it interactively using:
+   
    $ ./nial -i
 
    This will display a header and a prompt of 5 spaces.
    Enter he nial expression: 
-        5 + count 10
+   
+   *5 + count 10*
 
    It displays the result:
 
-   6 7 8 9 10 11 12 13 14 15
+   *6 7 8 9 10 11 12 13 14 15*
 
-   This example shows that the definition of count as
+   This example shows that the definition of *count* as
 
-       count IS OPERATION A { 1 + tell A }
+       *count IS OPERATION A { 1 + tell A }*
+       
 
    has been installed correctly.
 
 8. Move the nial executable into the pkgblder directory and rename it nial_basic:
+   
    $ mv nial ../pkgblder/nial_basic
 
 We have now completed the process of getting a nial executable that can be used
 to add other features. 
 
 
-#Creating Nial Packages
+##Creating Nial Packages
 
-We define a "Nial package" as  basic nial extended by selected features.
+We define a "Nial package" as  basic *nial* extended by selected features.
 The design of pkgblder is intended to be open ended so that new features can 
 be developed and easily included in packages.
 
@@ -146,63 +157,67 @@ empty is ignored.
 Each feature is given a name in all capitals thst is the name of its subdirectory.
 The current set of features are:
 
+Feature       | Capability
+------------- | ------------------------ 
+DEBUGINCLUDED |	adds DEBUG capability to basic nial
+MEMSPACES     | supports shared memory spaces  (Linux/OSX)
+NCOMPLEX      | complex arithmetic package
+NDYNLOAD      | supports dynamic loading in Linux and OSXNFILES        | simple file features
+NIALDSP       | digital signal processing support
+NIAL_FFTW     | fast fourier transform support
+NSFML_AUDIO   | Audio support
+NTABLES       | user hash tables for associative array features
+PROCESS       | Unix style process control (Linux/OSX)
+SOCKETS       | Unix/Windows socket support
+QSORT         | Quicksort algorithm	
+REGEXP        | Posix regular expression support (Linux/OSX)
+SPROCESS      | support for streams (Linux/OSX)
+WINPROCESS    | process support for Windows (Windows)
 
-DEBUGINCLUDED	adds DEBUG capability to basic nial
-MEMSPACES       supports shared memory spaces  (Linux/OSX)
-NCOMPLEX        complex arithmetic package
-NDYNLOAD        supports dynamic loading (Linux/OSX)
-NFILES          simple file features
-NIALDSP         digital signal processing support
-NIAL_FFTW       fast fourier transform support
-NSFML_AUDIO     Audio support
-NTABLES         user hash tables for associative array features
-PROCESS         Unix style process control (Linux/OSX)
-SOCKETS         Unix/Windows socket support
-QSORT           Quicksort algorithm	
-REGEXP          Posix regular expression support (Linux/OSX)
-SPROCESS        support for streams (Lnux/OSX)
-WINPROCESS      process support for Windows (Windows)
+The subdirectory for a feature has one or more files and a subdirectory of src files. For example, the REGEXP directory has:
 
-The subdirectory for a feature has one or more files and a subdirectory of src
-files. For example, the REGEXP directory has:
-
-REGEXP_src - the source directory
-regexp.nh  - the descriptor file for primitives added with the feature
-regexp.ndf - its definition to be installed at startup
+  File name| Purpose
+---------- | -------
+REGEXP_src | the source directory
+regexp.nh  | the descriptor file for primitives added with the feature
+regexp.ndf | its definition to be installed at startup
 
 The feature directory may also have a file with the name in lower case 
 followed by _cmake for lines that need to be added to the CmakeLists.txt file 
 for the feature.
 
-The currently defined packages are:
+### Available packages
 
-basic_nial.txt      - builds basic_nial
-basic_debug.txt     - builds a basic nial where the DEBUG facility can be 
-                      turned on in Cmake to add integrity checks for testing
-                      the core cpabilities.
-QNial7.txt          - builds the standard V7 nial
-allfeatures.txt     - builds all the features that are not commented out using #.
-win_allfeaures.txt  - builds a Windows version with all applicable fearures
+File name          |Package description
+--------           |  --------
+basic_nial.txt     | builds basic_nial
+basic_debug.txt    | builds a basic nial with optional DEBUG for testing
+QNial7.txt         | builds the standard V7 nial
+allfeatures.txt    | builds all the features that are not commented out using #.
+win_allfeaures.txt | builds a Windows version with all applicable features
 
 
-#Building a specific Package
+### Building a specific Package
 
 1. Change to  BuildNial directory:	
    $ cd BuildNial
 
 2. Clear the build and src subdirectories:
+
    $ rm -r build/*
+   
    $ rm -r src/*
 
 3. Change to the directory pkgblder: 
+
    $ cd pkgblder
 
 4. Run the Nial script addfeatures.ndf to populate the src directory
    with the source code and CmakeLists.txt file:
+   
    $ ./nial_basic -defs addfeatures
-
-This will present a list of packages numbered from 0. Respond with the
-number of the package you wish to create.
+   
+   This will present a list of packages numbered from 0. Respond with the number of the package you wish to create.
 
 5. If you are using the CMake GUI then Run CMake pointing at the BuildNial 
    src and build directories. If you are building a Windows version then
@@ -210,19 +225,26 @@ number of the package you wish to create.
    toolchain file found in the 'tools/CmakeTools' directory.
    
    If you are using the command line then do the following
+   
    $cd build
+   
    $cmake ../src
    
    or for thw Windows version
+   
    $cd build
+   
    $cmake -DCMAKE_TOOLCHAIN_FILE=../tools/CmakeTools/Toolchain-mingw64-Win64.cmake ../src
  
 
-6. Do the make in the build directory to build executable "nial":
+6. Do the make in the build directory to build an executable *nial*:
+
    $ cd ../build
+   
    $ make
 
 7. Test the nial executable in build using
+
    $ ./nial -i
 
    Try using one of the new primitives added by the package. For example if the
@@ -230,6 +252,7 @@ number of the package you wish to create.
    by entering the nial expression:
    
         qsort random 5
+        
    0.119586 0.639681 0.72909 0.810901 0.882235
 
    The reulst is a set of random numbers between 0. and 1. sorted in ascending
@@ -237,21 +260,20 @@ number of the package you wish to create.
 
          bye
 
-   to exit nial.
+   to exit *nial*.
+   
 
-8. You have now completed the process of building a nial executable that 
+8. You have now completed the process of building an executable *nial* that 
    supports the features selected by the package. To make it the active
-   executable "nial","copy it to a directory that is on your $PATH list. If you 
-   have added a path to a provided version of nial using
-
-   $ export PATH=$PATH:$HOME/QNial7/binaries/<platform>
-
-   then copy the new executable to that directory. FOR OSX use
-
-   $ cp nial $HOME/QNial7/binaries/OSX
+   executable *nial*, copy it to a directory that is on your $PATH list. For example if the directory 
+   
+   /usr/local/bin is on your path then copy it there using
+   
+   $cp nial /usr/local/bin
+  
 
 
-# Adding new features
+## Adding new features to extend the capability of *nial*.
 
 
 The pkgblder directory and the addfeatures.ndf Nial script have been designed
@@ -259,62 +281,99 @@ to make it straightforward to add new features to QNial7. The term feature
 is used in this context to describe an extension to the Nial interpreter
 that involves the addition of one or more new primitive functions each of
 which may be a basic expression, a basic operation, or a basic  transformer.
+
 The new primitives are implemented in C following the instruction give in 
-Chapter 11 of the Design of QNial V7 document provided in QNial7/docs. The
+Chapter 11 of the *Design of QNial V7* document provided in QNial7/docs. 
+
+The
 implementation may involve one or more C source files and any corresponding
 header files they require. A feature may also add additional functionality
 in the form of Nial definitions that are installed at startup of the 
 executable. 
 
 Consider a new feature that we will call NEWFEATURE. We create a new directory
-in BuildHelp/pkgblder/all_features with this name in capital letters. Within
+in 
+
+QNial7/BuildNial/pkgblder/all_features 
+
+with this name in capital letters. Within
 this new directory we create a subdirectory NEWFEATURE_src. 
 These steps are done with:
+
    $ cd all_features
+   
    $ mkdir NEWFEATURE
+   
    $ cd NEWFEATURE
+   
    $ mkdir NEWFEATURE_src
 
 
 Let us assume that the implementation of the two source files nf1.c and nf2.c
-and a header file nf.h. These would be placed in NEWFEATURE_src. If there is 
+and a header file nf.h. These would be placed in NEWFEATURE_src. 
+
+If there is 
 a file of Nial definitions for the new feature then it must be named 
 newfeature.ndf and placed in the NEWFEATURE directory.
 
 In order for the interpreter to execute the new primitive functions a 
 primitive descriptor file named newfeature.nh is created.  Each line of
 the descriptor file describes one primitive function using the following form:
+
    NEWFEATURE Property Nialname Cname
+
 where:
    Property is a single letter:
-      U - a unary operation
-      E - an expression
-      T - a transformer
+   
+   U - a unary operation
+      
+   E - an expression
+      
+   T - a transformer
+      
    Nialname is the name used for the primitive function in Nial
+   
    Cname is the name of the C routine that implements the primitive function.
+
 The newfeature.nh file is placed in the NEWFEATURE directory.
 
 In some cases the new functionality being introduced will depend on support
 libraries provide by the platform. The Cmake capability has to be provided
-with the name of such libraries for the platforms that support the new 
-feature. If this is the case a file named newfeature_cmake should contain
+with the name of such libraries for the platforms that support the new  feature. 
+
+If this is the create a file:
+
+newfeature_cmake 
+
+that contains
 the lines that provide access to the library for the platforms being
 supported. An example of such a file is found in the directory for the
-feature that supports Fast Fourier transform capabilities, NIAL_FFTW. 
-The file nial_fftw_cmake  contains the following lines:
+feature that supports Fast Fourier transform capabilities, NIAL_FFTW. The file
+
+ nial_fftw_cmake  
+ 
+ contains the following lines:
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 set(NIAL_LIBS ${NIAL_LIBS} fftw3)
+
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
 set(NIAL_LIBS ${NIAL_LIBS} fftw3)
+
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
 set(NIAL_LIBS ${NIAL_LIBS} fftw3-3)
+
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
-If needed, create a similar file named newfeature_cmake in the NEWFEATURE
-directory to supply the required support libraries.
+
+If needed, create a similar file named newfeature_cmake in the NEWFEATURE directory to supply the required support libraries.
 
 When all these files have been set up, create a package file that includes an
 entry for NEWFEATURE and build this package as described above.
