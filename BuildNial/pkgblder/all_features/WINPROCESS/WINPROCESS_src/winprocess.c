@@ -232,7 +232,7 @@ static nialint child_proc_count(nialint child) {
     ULARGE_INTEGER count;
     
     memcpy(&count, &totalBytesAvail, sizeof(ULARGE_INTEGER));
-    return (nialint)count.QuadPart;
+    return (nialint)(count.QuadPart&0xFFFFFFFF);
   } else {
     return -1;
   }
