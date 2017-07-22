@@ -1,11 +1,10 @@
 # Solving the nqueens problem with simulated annealing
 #
 
-loaddefs "sim_anneal
+loaddefs "sim_anneal;
 
-nq := 8;
+# Set the initial configuration and parameters
 
-init_soln := reverse count nq;
 init_temp := 30.0;
 fin_temp  := 0.05;
 niter     := 100;
@@ -46,7 +45,7 @@ nq_cost is op soln {
 # nq_finished
 # -----------
 #
-# finished if noconflicts
+# finished if no conflicts
 #
 
 nq_finished is op cost soln model {
@@ -57,10 +56,10 @@ nq_finished is op cost soln model {
 # Test run
 
 nq_test is op n {
-    t_start := nano_time 0;
+    t_start := time;
 	model := [count n, init_temp, fin_temp, niter];
 	res := sa_run [nq_tweak, nq_cost, nq_cool, nq_finished] model;
-	durn := (nano_time 0) - t_start;
+	durn := time - t_start;
 	[durn, res]}
 
 
