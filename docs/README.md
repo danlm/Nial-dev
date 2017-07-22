@@ -1,4 +1,4 @@
-# The Nial Documentation
+#The Nial Documentation
 
 This directory contains documentation for the V6 and V7 versions of Q'Nial.
 
