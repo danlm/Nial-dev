@@ -119,5 +119,17 @@ void irename(void) {
   return;
 }
 
+void ifullpathname(void) {
+  void x = apop();
+  
+  if (istext(x) && tally(x) > 0) {
+    apush(createint(-1));
+  } else {
+    apush(makefault("?args"));
+  }
+  
+  freeup(x);
+}
+
 #endif  /* NFILES */
 
