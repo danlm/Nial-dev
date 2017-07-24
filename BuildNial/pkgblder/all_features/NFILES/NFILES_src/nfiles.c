@@ -28,6 +28,9 @@
 
 /* STDLIB */
 #include <stdlib.h>
+#ifdef UNIXSYS
+#include <limits.h>
+#endif
 
 /* STLIB */
 #include <string.h>
@@ -120,15 +123,30 @@ void irename(void) {
 }
 
 void ifullpathname(void) {
-  void x = apop();
+  nialptr x = apop();
+  char *res;
   
   if (istext(x) && tally(x) > 0) {
-    apush(createint(-1));
+#ifdef WINNIAL
+    char absPath[_MAX_PATH];
+    res = _fullpath(absPath, pfirstchar(x), _MAX_PATH);
+#endif
+#ifdef UNIXSYS
+    char rpath[PATH_MAX];
+    res = realpath((const char *)pfirstchar(x), rpath);
+#endif
   } else {
     apush(makefault("?args"));
   }
   
+  if (res != NULL) {
+    mkstring(res);
+  } else {
+    apush(Null);
+  }
+  
   freeup(x);
+  return;
 }
 
 #endif  /* NFILES */
