@@ -60,23 +60,35 @@
 #ifdef NFILES
 
 /**
- * Create a new directory
+ * Create a new directory. This takes two parameters, name and mode.
+ * On Windows the mode parameter is ignored. If it is not present on
+ * Unix it defaults to 0777.
  */
 void imkdir(void) {
   nialptr x = apop();
-
-  if (istext(x)) {
-#ifdef UNIXSYS
-    int r = mkdir(pfirstchar(x), 0777);
-#endif
-#ifdef WINNIAL
-    int r = mkdir(pfirstchar(x));
-#endif
-    apush((r==-1)? False_val: True_val);
+  nialptr dname, dmode = invalidptr;
+  int r;
+  
+  if (kind(x) == atype && tally(x) == 2) {
+    splitfb(x, &dname, &dmode);
+    if (!istext(dname) || tally(dname) == 0 || kind(dmode) != inttype) {
+      apush(makefault("?invalid argument pair"));
+      freeup(x);
+      return;
+    }
+  } else if (istext(x)) {
+    dname = x;
   } else {
     apush(makefault("?args"));
   }
   
+#ifdef UNIXSYS
+  r = mkdir(pfirstchar(x), (dmode == invalidptr)? 0777: (mode_t)intval(dmode));
+#endif
+#ifdef WINNIAL
+  r = mkdir(pfirstchar(dname));
+#endif
+  apush((r==-1)? False_val: True_val);
   freeup(x);
   return;
 }
@@ -122,6 +134,10 @@ void irename(void) {
   return;
 }
 
+
+/**
+ * Return the full path name for a supplied relative path name
+ */
 void ifullpathname(void) {
   nialptr x = apop();
   char *res;
