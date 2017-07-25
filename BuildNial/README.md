@@ -433,32 +433,25 @@ feature that supports Fast Fourier transform capabilities, NIAL_FFTW. The file
 
  nial\_fftw\_cmake  
  
- contains the following lines:
+contains the following lines:
 
+```
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-set(NIAL_LIBS ${NIAL_LIBS} fftw3)
-
+  set(NIAL_LIBS ${NIAL_LIBS} fftw3)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
-
-set(NIAL_LIBS ${NIAL_LIBS} fftw3)
-    
+  set(NIAL_LIBS ${NIAL_LIBS} fftw3)
 endif (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-set(NIAL_LIBS ${NIAL_LIBS} fftw3)
-
+  set(NIAL_LIBS ${NIAL_LIBS} fftw3)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-set(NIAL_LIBS ${NIAL_LIBS} fftw3-3)
-
+  set(NIAL_LIBS ${NIAL_LIBS} fftw3-3)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
+```
 
 If needed, create a similar file named newfeature_cmake in the NEWFEATURE directory to supply the required support libraries.
 
