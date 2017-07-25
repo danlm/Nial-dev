@@ -41,16 +41,16 @@ A CMake Toolchain file is provided in the tools subdirectory and its use is note
 in the following lines. It only needs to be used in the final build stage when you
 are adding feaures and building a Windows version.
 
-# Building a QNial7 version using pkkblder
+# Building a QNial7 version using pkgblder
 
 A QNial7 exeutable includes the core functionality built using BuildCore, the
 extensions that add the functionality described in the document 
-   ../doc/V7 Nial Extensions.pdf,
+*../doc/V7 Nial Extensions.pdf*,
 and additional features of interest to some users. 
 
 A QNial7 package builds an executable that consists of the core and and the 
 set of features described in its <package>.txt file. The work to assemble
-the src for the package and a corresponding CmakeLists.txt file is done in 
+the src for the package and a corresponding *CMakeLists.txt* file is done in 
 the directory "pkgblder".
 
 The directory pkgblder has the following structure:
@@ -79,7 +79,8 @@ be added if desired.
 
 The basic version is built first with the following steps:
 
-1. Change to  BuildNial directory:	
+1. Change to  BuildNial directory:
+	
    $ cd BuildNial
 
 2. Clear the build and src subdirectories:
@@ -92,8 +93,8 @@ The basic version is built first with the following steps:
 
    $ cd pkgblder
 
-4. Run the Nial script buildfromcore.ndf to populate the src directory with the
-   source code and CMakeLists.txt files:
+4. Run the Nial script *buildfromcore.ndf* to populate the src directory with the
+   source code and *CMakeLists.txt* files:
    
    $ ./nialcore -defs buildfromcore
 
@@ -103,7 +104,7 @@ The basic version is built first with the following steps:
    can also set a fast math option which sets the compiler flags appropriately.
 
 6. If you are using the Cmake GUI then run it now with the source directory 
-   set to BuildNial/src and the build directory to BuildNial/build. Then
+   set to *BuildNial/src* and the build directory to *BuildNial/build*. Then
    change to the build directory.
 
    If you are using the command line version of Cmake then do the following:
@@ -123,7 +124,7 @@ The basic version is built first with the following steps:
    $ ./nial -i
 
    This will display a header and a prompt of 5 spaces.
-   Enter he nial expression: 
+   Enter the nial expression: 
    
    *5 + count 10*
 
