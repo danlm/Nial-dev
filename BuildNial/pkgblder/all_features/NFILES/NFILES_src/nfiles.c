@@ -83,7 +83,7 @@ void imkdir(void) {
   }
   
 #ifdef UNIXSYS
-  r = mkdir(pfirstchar(x), (dmode == invalidptr)? 0777: (mode_t)intval(dmode));
+  r = mkdir(pfirstchar(dname), (dmode == invalidptr)? 0777: (mode_t)intval(dmode));
 #endif
 #ifdef WINNIAL
   r = mkdir(pfirstchar(dname));
