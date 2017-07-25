@@ -22,6 +22,11 @@ need to have installed one of these compilers. On OSX you should install
 
 CLANG appears to generate slightly faster code on Linux.
 
+If you are buiding the Native Windows version on Windows then first read
+the section in the *BuildNial* README which indicates which compiler
+software is needed to do this and what modifications are needed to the
+*cmake* command line.
+
 ## Building the core
 
 Use the CMake tool to build  the "nialcore" executable with the following
@@ -31,14 +36,13 @@ steps:
 
 2. If you are using the Cmake GUI set up CMake to point at the
    *QNial7/Buildcore/src*  directory as the source directory and  
-   *QNial7/BuildCore/build*   
-   as the build directory and then use CMake to
+   *QNial7/BuildCore/build* as the build directory and then use CMake to
    generate the contents of the build directory. 
 
-   If you are using the 
-   command line version of Cmake then do the following
+   If you are using the command line version of Cmake then do the following
 
    $ cd build
+
    $ cmake ../src   
 
 3. Change into build, if you are not already there, and execute *make* to build the executable.
@@ -52,9 +56,11 @@ steps:
 
 This will display a header like:
 
+   ```
    Q'Nial V7.0 Open Source Edition Intel x86 64bit Mac OSX May 19 2017
    Copyright (c) NIAL Systems Limited
    clear workspace created
+   ```
 
    and then will be awaiting a *nial* input indented 6 spaces. 
 
